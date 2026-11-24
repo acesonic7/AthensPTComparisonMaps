@@ -34,8 +34,8 @@
 <link rel="alternate" hreflang="x-default" href="https://athens-transit-reach.vercel.app/">
 <link rel="canonical" href="https://athens-transit-reach.vercel.app/">
 <meta property="og:url" content="https://athens-transit-reach.vercel.app/">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/commissioner-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="fonts/commissioner.css" rel="stylesheet">
 <style>
 /* VOICE: a transport planner's plate — exact, calm, one moving thing.
    IDEA: the city's own street grid as the map; travel time spreads through it like ink.
@@ -95,6 +95,9 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-of
 .ticks{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;margin-top:3px}
 .zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
 .zoom button{width:44px;padding:0;font-size:20px}
+.zoom .locate{display:grid;place-items:center;margin-top:6px}
+.toast{position:absolute;left:50%;top:14px;transform:translateX(-50%);z-index:3;max-width:min(520px,calc(100% - 140px));background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:10px;font-size:14px;box-shadow:0 2px 10px rgb(0 0 0/.2)}
+.toast[hidden]{display:none}
 .status{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);pointer-events:none}
 .below{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);padding:24px max(3vw,16px) 40px}
 h2{font-size:17px;margin:0 0 10px}
@@ -215,7 +218,7 @@ const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>'
 const hm = s => String(Math.floor(s/3600)%24).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0');
 // ---------- language: English is written in the page; Greek replaces it by key ----------
 const qLang = new URLSearchParams(location.search).get('lang');
-let LANG = ['el','en'].includes(qLang) ? qLang : (localStorage.getItem('lang') || ((navigator.languages || [navigator.language]).some(l => /^el\b/i.test(l)) ? 'el' : 'en'));
+let LANG = ['el','en'].includes(qLang) ? qLang : (localStorage.getItem('lang') === 'el' ? 'el' : 'en');   // English unless Greek was chosen
 const EL_STATIC = {
   'title':'Πόσο μακριά φτάνεις σε 45 λεπτά;',
   'desc':'Από οποιοδήποτε σημείο της Αθήνας, με ΜΜΜ ή με αυτοκίνητο, οποιαδήποτε ώρα μιας εργάσιμης. Πάτα στον χάρτη για να αλλάξεις αφετηρία. ',
@@ -273,7 +276,9 @@ const D = {
     trn:{typ:'typical for that hour', free:'free-flowing', heavy:'bad day'}, pkOn:'parking search and walk included', pkOff:'door to door, no parking time',
     loadErr:'Could not load the network data: ', copied:'Copied',
     imgTitle:b=>`How far can you reach in ${b} minutes?`, imgSub:(f,t,v)=>`From ${f} · leaving ${t} · ${v}`, imgFoot:'Map data © OpenStreetMap contributors · Timetables: OASA, STASY, Hellenic Train',
-    docTitle:'Athens transit reach'},
+    docTitle:'Athens transit reach', locate:'Use my location', locateTitle:'Use my location as the start (it stays on this device)', locating:'Finding your location…',
+    locDenied:'Location permission was refused. You can still click the map to set the start.', locFail:'Could not get your location. You can still click the map to set the start.',
+    locOut:'You seem to be outside the area this map covers, so the start has not moved.', locNo:'This browser cannot share its location.'},
   el:{day:'Ημέρα', night:'Νύχτα (μετά τα μεσάνυχτα)', 'pane.pt':'ΜΜΜ', 'pane.car':'Αυτοκίνητο', 'pane.diff':'Τι είναι πιο γρήγορο', 'pane.mode':'ΜΜΜ · κύριο μέσο',
     'leg.mode':'ΜΜΜ: το μέσο όπου περνάς τον περισσότερο χρόνο', 'leg.fpt':'ΜΜΜ 10+ λεπτά πιο γρήγορα', 'leg.same':'ίδιο', 'leg.fcar':'Αυτοκίνητο 10+ λεπτά πιο γρήγορα', 'leg.min':'45 λεπ.',
     'leg.park':'Αχνό: το αυτοκίνητο περνά · Έντονο: πάρκαρες και έφτασες', modes:['Λεωφορείο','Τρόλεϊ','Μετρό','Τραμ','Προαστιακός','Μόνο με τα πόδια'],
@@ -288,7 +293,9 @@ const D = {
     trn:{typ:'συνήθης κίνηση', free:'ελεύθερη ροή', heavy:'κίνηση κακής μέρας'}, pkOn:'με αναζήτηση στάθμευσης και περπάτημα', pkOff:'πόρτα-πόρτα, χωρίς χρόνο στάθμευσης',
     loadErr:'Δεν ήταν δυνατή η φόρτωση των δεδομένων: ', copied:'Αντιγράφηκε',
     imgTitle:b=>`Πόσο μακριά φτάνεις σε ${b} λεπτά;`, imgSub:(f,t,v)=>`Αφετηρία: ${f} · αναχώρηση ${t} · ${v}`, imgFoot:'Δεδομένα χάρτη © συντελεστές OpenStreetMap · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train',
-    docTitle:'Αθήνα: πόσο μακριά φτάνεις με ΜΜΜ'}};
+    docTitle:'Αθήνα: πόσο μακριά φτάνεις με ΜΜΜ', locate:'Η τοποθεσία μου', locateTitle:'Η τοποθεσία μου ως αφετηρία (μένει σε αυτή τη συσκευή)', locating:'Αναζήτηση τοποθεσίας…',
+    locDenied:'Δεν δόθηκε άδεια τοποθεσίας. Μπορείς πάντα να πατήσεις στον χάρτη για να ορίσεις αφετηρία.', locFail:'Δεν βρέθηκε η τοποθεσία σου. Μπορείς πάντα να πατήσεις στον χάρτη για να ορίσεις αφετηρία.',
+    locOut:'Φαίνεται ότι είσαι έξω από την περιοχή του χάρτη, οπότε η αφετηρία δεν άλλαξε.', locNo:'Αυτό το πρόγραμμα περιήγησης δεν μπορεί να δώσει τοποθεσία.'}};
 const tr = (k, ...a) => {const v = D[LANG][k] ?? D.en[k]; return typeof v === 'function' ? v(...a) : v};
 const num = (v, d=0) => v.toLocaleString(LANG==='el' ? 'el-GR' : 'en-GB', {minimumFractionDigits:d, maximumFractionDigits:d});
 // static text: remember the English the page was written with, then swap by key
@@ -522,9 +529,12 @@ let panes = [];
 function layout(){
   const kinds = {pt:['pt'], car:['car'], both:['pt','car'], diff:['diff'], mode:['mode']}[viewMode];
   $('maps').innerHTML=''; $('maps').classList.toggle('two', kinds.length===2);
-  panes = kinds.map(k => {const p = new Pane(k); $('maps').append(p.el);
+  panes = kinds.map((k, idx) => {const p = new Pane(k); $('maps').append(p.el);
     const z = document.createElement('div'); z.className='zoom'; z.innerHTML='<button aria-label="Zoom in">+</button><button aria-label="Zoom out">−</button>';
     z.querySelectorAll('button').forEach((b,i)=>{b.addEventListener('pointerdown',ev=>ev.stopPropagation()); b.addEventListener('click',ev=>{ev.stopPropagation(); zoomAt(i?1/1.5:1.5, p.W/2, p.H/2, p)})});
+    if (idx === 0){const g = document.createElement('button'); g.className = 'locate'; g.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="currentColor"/><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2"/></svg>';
+      g.setAttribute('aria-label', tr('locate')); g.title = tr('locateTitle');
+      g.addEventListener('pointerdown', ev => ev.stopPropagation()); g.addEventListener('click', ev => {ev.stopPropagation(); locate()}); z.append(g)}
     p.el.append(z); return p});
   panes.forEach(p => p.resize()); feed(); redraw();
 }
@@ -680,13 +690,14 @@ function originLabel(){const {m, near} = origin.pin; if (m < 0) return tr('pin')
 const DEF = {dep:8*3600, budget:45, view:'pt', traffic:'typ', park:'1'};
 const hhmm = t => hm(t).replace(':','');
 function linkState(){const q = new URLSearchParams();
-  if (origin.x || origin.y) q.set('from', Math.round(origin.x)+','+Math.round(origin.y));
+  const r100 = v => Math.round(v/100)*100;   // links carry points to the nearest 100 m, so a shared link never pins a front door
+  if (origin.x || origin.y) q.set('from', r100(origin.x)+','+r100(origin.y));
   if (dep !== DEF.dep) q.set('at', hhmm(dep));
   if (viewMode !== DEF.view) q.set('view', viewMode);
   if (budget !== DEF.budget) q.set('min', budget);
   if ($('traffic').value !== DEF.traffic) q.set('traffic', $('traffic').value);
   if ($('park').value !== DEF.park) q.set('park', 'no');
-  if (dest) q.set('to', Math.round(dest.x)+','+Math.round(dest.y));
+  if (dest) q.set('to', r100(dest.x)+','+r100(dest.y));
   if (LANG === 'el') q.set('lang', 'el');
   return q}
 function saveLink(){if (POSTER) return; const q = linkState().toString().replace(/%2C/g, ','); history.replaceState(null, '', location.pathname + (q ? '?' + q : ''))}
@@ -756,6 +767,20 @@ async function saveImage(){
   setTimeout(() => URL.revokeObjectURL(a.href), 4000);
 }
 $('save').addEventListener('click', saveImage);
+// ---------- use my location: the browser asks first; the position is only used here, on the device ----------
+let toastT = 0;
+function toast(msg, ms=5000){let t = document.querySelector('.toast'); if (!t){t = document.createElement('div'); t.className = 'toast'; t.setAttribute('role','status'); document.querySelector('.mapwrap').append(t)}
+  t.textContent = msg; t.hidden = !msg; clearTimeout(toastT); if (msg && ms) toastT = setTimeout(() => t.hidden = true, ms)}
+function locate(){
+  if (!navigator.geolocation){toast(tr('locNo')); return}
+  toast(tr('locating'), 0);
+  navigator.geolocation.getCurrentPosition(pos => {
+    const x = (pos.coords.longitude - meta.lon0) * meta.mPerDegLon, y = (pos.coords.latitude - meta.lat0) * meta.mPerDegLat;
+    if (nearestNode(x, y, walkMask)[1] > 1500){toast(tr('locOut')); return}
+    toast('');
+    origin = {x, y, pin:pinOf({x, y})}; clearTrip(); view.cx = x; view.cy = y; run();
+  }, err => toast(err.code === 1 ? tr('locDenied') : tr('locFail')), {enableHighAccuracy:false, timeout:10000, maximumAge:60000});
+}
 let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{pend=0; redraw()})}
 const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));

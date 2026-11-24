@@ -32,8 +32,8 @@
 <meta name="twitter:image" content="https://athens-transit-reach.vercel.app/og.jpg">
 <meta name="twitter:image:alt" content="Map of Athens: streets coloured by public transport travel time from Syntagma, up to 45 minutes">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "AboutPage", "name": "About · Athens transit reach", "url": "https://athens-transit-reach.vercel.app/about", "description": "Why this map of public transport and car reach in Athens was made: to show how accessible the city is by public transport, find the areas it serves poorly, and put traffic congestion in context. By Ioannis Tsouros.", "about": {"@type": "WebApplication", "name": "Athens transit reach", "url": "https://athens-transit-reach.vercel.app/"}, "author": {"@type": "Person", "name": "Ioannis Tsouros", "url": "https://www.jtsouros.site/", "jobTitle": "Transportation researcher", "affiliation": {"@type": "Organization", "name": "MobyX"}, "sameAs": ["https://github.com/acesonic7", "https://www.linkedin.com/in/ioannis-tsouros-ba582243", "https://scholar.google.com/citations?user=nahTqW0AAAAJ"]}, "inLanguage": "en"}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="preload" href="fonts/commissioner-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link href="fonts/commissioner.css" rel="stylesheet">
 <style>
 :root{color-scheme:light dark;--bg:light-dark(#fdfdfc,#0f1115);--ink:light-dark(#15161a,#eceef2);--mute:light-dark(#62656d,#9095a0);
 --street:light-dark(#d6d7da,#2a2d34);--line:light-dark(#e4e5e8,#262930);--panel:light-dark(#f3f4f6,#171a20);--c0:#1d2bd8;--c1:#e0218a;--c2:#ff7a1a;--car:#e8590c}
@@ -63,6 +63,7 @@ h1{font-size:clamp(28px,3.6vw,42px);line-height:1.05;margin:22px 0 0;font-weight
 .links a:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
 footer{padding:16px max(3vw,16px) 28px;font-size:13px;color:var(--mute);background:var(--panel)}
 footer a{color:inherit}
+.priv{padding:0 max(3vw,16px) 32px;max-width:calc(68ch + 2*max(3vw,16px))}.priv h2{font-size:clamp(20px,2vw,24px);margin:0 0 10px}.priv p{margin:0 0 10px}.priv ul{margin:0;padding-left:20px;display:grid;gap:8px}.priv b{font-weight:700}
 @media(max-width:800px){.about{grid-template-columns:minmax(0,1fr)}}
 .foot{padding:18px max(3vw,16px) 26px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
 .foot p{margin:0 0 4px}.foot b{color:var(--ink)}.foot a{color:inherit;text-underline-offset:3px}.foot a:hover{color:var(--ink)}
@@ -99,6 +100,16 @@ footer a{color:inherit}
     <p>Source code, data pipeline and issues: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Corrections and ideas are welcome there.</p>
   </div>
 </main>
+<section class="priv" aria-labelledby="priv-en">
+  <h2 id="priv-en">Privacy</h2>
+  <p>The map runs entirely in your browser. Routes are calculated on your device, and nothing you click on is sent anywhere.</p>
+  <ul>
+    <li><b>Your location.</b> “Use my location” asks your browser for permission first. The position is used only on your device, to set the start, and is never sent to the site.</li>
+    <li><b>No cookies, no analytics, no accounts.</b> The site stores one thing on your device: your language, and only if you pick it with the ΕΛ/EN switch.</li>
+    <li><b>Share links</b> contain the start and destination rounded to about 100 m, plus the time and view. Anyone you send a link to can see them.</li>
+    <li><b>Hosting.</b> The site is hosted by Vercel, whose servers keep standard request logs (such as IP address and the page requested) for a short time. Fonts and data come from this site itself, not from third-party services.</li>
+  </ul>
+</section>
 <footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
 </div>
 <div data-l="el" lang="el" hidden>
@@ -129,12 +140,22 @@ footer a{color:inherit}
     <p>Πηγαίος κώδικας, επεξεργασία δεδομένων και αναφορές προβλημάτων: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Διορθώσεις και ιδέες είναι ευπρόσδεκτες εκεί.</p>
   </div>
 </main>
+<section class="priv" aria-labelledby="priv-el">
+  <h2 id="priv-el">Ιδιωτικότητα</h2>
+  <p>Ο χάρτης λειτουργεί εξ ολοκλήρου στο πρόγραμμα περιήγησής σου. Οι διαδρομές υπολογίζονται στη συσκευή σου και τίποτα από όσα πατάς δεν στέλνεται πουθενά.</p>
+  <ul>
+    <li><b>Η τοποθεσία σου.</b> Η «Τοποθεσία μου» ζητά πρώτα άδεια από το πρόγραμμα περιήγησης. Η θέση χρησιμοποιείται μόνο στη συσκευή σου, για να οριστεί η αφετηρία, και δεν στέλνεται ποτέ στον ιστότοπο.</li>
+    <li><b>Χωρίς cookies, χωρίς στατιστικά επισκεψιμότητας, χωρίς λογαριασμούς.</b> Ο ιστότοπος αποθηκεύει ένα μόνο πράγμα στη συσκευή σου: τη γλώσσα, και μόνο αν τη διαλέξεις με το κουμπί ΕΛ/EN.</li>
+    <li><b>Οι σύνδεσμοι κοινοποίησης</b> περιέχουν την αφετηρία και τον προορισμό στρογγυλεμένα στα 100 μ. περίπου, μαζί με την ώρα και την προβολή. Όποιος λάβει τον σύνδεσμο μπορεί να τα δει.</li>
+    <li><b>Φιλοξενία.</b> Ο ιστότοπος φιλοξενείται από τη Vercel, οι διακομιστές της οποίας κρατούν για λίγο τυπικά αρχεία καταγραφής αιτημάτων (όπως διεύθυνση IP και σελίδα που ζητήθηκε). Οι γραμματοσειρές και τα δεδομένα έρχονται από τον ίδιο τον ιστότοπο, όχι από υπηρεσίες τρίτων.</li>
+  </ul>
+</section>
 <footer class="foot"><p><b>Ιωάννης Τσούρος</b> · <a href="https://www.jtsouros.site/">Ιστότοπος</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Πηγαίος κώδικας</a></p><p class="small">Δεδομένα χάρτη © <a href="https://www.openstreetmap.org/copyright">συντελεστές OpenStreetMap</a> · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train</p></footer>
 </div>
 <script>
 {
 const q = new URLSearchParams(location.search).get('lang');
-let L = ['el','en'].includes(q) ? q : (localStorage.getItem('lang') || ((navigator.languages || [navigator.language]).some(l => /^el\b/i.test(l)) ? 'el' : 'en'));
+let L = ['el','en'].includes(q) ? q : (localStorage.getItem('lang') === 'el' ? 'el' : 'en');
 const b = document.getElementById('lang');
 function apply(){
   document.querySelectorAll('[data-l]').forEach(d => d.hidden = d.dataset.l !== L);

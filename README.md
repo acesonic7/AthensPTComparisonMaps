@@ -16,7 +16,7 @@ Pick any departure time from 05:00 to 04:45 the following night (with Morning pe
 
 Switch to **Click shows trip** and click a destination to see both journeys step by step, with times, and their routes drawn on the map.
 
-The page is in English and Greek (**ΕΛ / EN** at the top right). It follows the browser's language the first time, remembers a choice made with the switch, and `?lang=el` opens it in Greek. **Save image** downloads the current map as a PNG with a title, the start point and time, the legend and credits.
+The page is in English and Greek (**ΕΛ / EN** at the top right). It opens in English, remembers a choice made with the switch, and `?lang=el` opens it in Greek. **Save image** downloads the current map as a PNG with a title, the start point and time, the legend and credits.
 
 Under each map's clock, a line gives the area within reach for the chosen time budget, next to the other modes. **Share link** copies a link to the exact map on screen: the start point, departure time, view, time budget, car options and any trip you opened are all kept in the address (for example `?from=-2000,3500&at=0200&view=both`).
 
