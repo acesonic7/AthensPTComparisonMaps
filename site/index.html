@@ -29,6 +29,9 @@
 <meta name="twitter:image" content="https://athens-transit-reach.vercel.app/og.jpg">
 <meta name="twitter:image:alt" content="Map of Athens: streets coloured by public transport travel time from Syntagma, up to 45 minutes">
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Athens transit reach", "url": "https://athens-transit-reach.vercel.app/", "description": "Street-by-street map of how far you can get in 15, 30 or 45 minutes from any point in Athens by public transport (bus, trolley, metro, tram, suburban rail) and by car, at any time of a working day.", "applicationCategory": "Reference", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "en", "isAccessibleForFree": true, "image": "https://athens-transit-reach.vercel.app/og.jpg", "keywords": "Athens, public transport, accessibility, isochrones, traffic congestion, night buses, transport equity", "spatialCoverage": {"@type": "Place", "name": "Athens, Attica, Greece", "geo": {"@type": "GeoCoordinates", "latitude": 37.9755, "longitude": 23.7348}}, "author": {"@type": "Person", "name": "Ioannis Tsouros", "url": "https://www.jtsouros.site/", "jobTitle": "Transportation researcher", "affiliation": {"@type": "Organization", "name": "MobyX"}, "sameAs": ["https://github.com/acesonic7", "https://www.linkedin.com/in/ioannis-tsouros-ba582243", "https://scholar.google.com/citations?user=nahTqW0AAAAJ"]}, "creator": {"@type": "Person", "name": "Ioannis Tsouros", "url": "https://www.jtsouros.site/", "jobTitle": "Transportation researcher", "affiliation": {"@type": "Organization", "name": "MobyX"}, "sameAs": ["https://github.com/acesonic7", "https://www.linkedin.com/in/ioannis-tsouros-ba582243", "https://scholar.google.com/citations?user=nahTqW0AAAAJ"]}, "license": "https://opendatacommons.org/licenses/odbl/1-0/", "codeRepository": "https://github.com/acesonic7/AthensPTComparisonMaps"}</script>
+<link rel="alternate" hreflang="en" href="https://athens-transit-reach.vercel.app/">
+<link rel="alternate" hreflang="el" href="https://athens-transit-reach.vercel.app/?lang=el">
+<link rel="alternate" hreflang="x-default" href="https://athens-transit-reach.vercel.app/">
 <link rel="canonical" href="https://athens-transit-reach.vercel.app/">
 <meta property="og:url" content="https://athens-transit-reach.vercel.app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -48,6 +51,9 @@ header{padding:14px max(3vw,16px) 10px;display:grid;gap:8px}
 h1{font-size:clamp(24px,2.8vw,34px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
 .sub{color:var(--mute);margin:4px 0 0;font-size:15px}
 .why{color:var(--ink);font-weight:600;white-space:nowrap;text-underline-offset:3px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.lang{min-height:38px;padding:0 12px;font-size:14px;flex:none}
+.ic{margin-right:6px}
 .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-wrap:wrap}
 .seg button{border:0;border-right:1px solid var(--line);border-radius:0}.seg button:last-child{border-right:0}
@@ -138,7 +144,7 @@ body.poster .legend{display:none}
   .seg.big,.presets{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
   .seg.big button,.presets button{white-space:nowrap;flex:none}
   .seg.big button{font-size:14px;padding:0 12px;min-height:42px}
-  .row{gap:8px}.row .lab,.row .t{display:none}.row button,.opts select{min-height:38px;font-size:14px;padding:0 9px}
+  .row{gap:8px}.row .lab,.row .t{display:none}.row .ic{margin:0}.row button,.opts select{min-height:38px;font-size:14px;padding:0 9px}.row>button{min-width:40px}
   .presets button{min-height:36px;font-size:13px;padding:0 10px}
   .opts label{gap:6px}
   .hint{font-size:13px;min-height:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -147,63 +153,155 @@ body.poster .legend{display:none}
 </head>
 <body>
 <header>
-  <div>
-    <h1 id="title">How far can you reach in 45 minutes?</h1>
-    <p class="sub"><span class="desc">From any point in Athens, by public transport or by car, at any time of a working day. Click the map to move the start. </span><a href="about.html" class="why">Why this map →</a></p>
+  <div class="head">
+    <div>
+      <h1 id="title" data-i="title">How far can you reach in 45 minutes?</h1>
+      <p class="sub"><span class="desc" data-i="desc">From any point in Athens, by public transport or by car, at any time of a working day. Click the map to move the start. </span><a href="about.html" class="why" data-i="why">Why this map →</a></p>
+    </div>
+    <button id="lang" class="ghost lang" lang="el" aria-label="Ελληνικά">ΕΛ</button>
   </div>
   <div class="top">
-  <div class="seg big" role="group" aria-label="Map view">
-    <button data-v="pt" aria-pressed="true" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-hint="Public transport only: each street coloured by the bus, trolley, metro, tram or train you spend longest on to reach it.">Transit by mode</button>
+  <div class="seg big" role="group" aria-label="Map view" data-ia="ga.view">
+    <button data-v="pt" aria-pressed="true" data-i="v.pt" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-i="v.car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-i="v.both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-i="v.diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-i="v.mode" data-hint="Public transport only: each street coloured by the bus, trolley, metro, tram or train you spend longest on to reach it.">Transit by mode</button>
   </div>
   <div class="row">
-    <span class="lab">Show up to</span>
-    <div class="seg" role="group" aria-label="Time budget">
-      <button data-b="15" data-hint="Stop the spread at 15 minutes.">15 min</button><button data-b="30" data-hint="Stop the spread at 30 minutes.">30 min</button><button data-b="45" aria-pressed="true" data-hint="Stop the spread at 45 minutes.">45 min</button>
+    <span class="lab" data-i="upto">Show up to</span>
+    <div class="seg" role="group" aria-label="Time budget" data-ia="ga.budget">
+      <button data-b="15" data-i="b15" data-hint="Stop the spread at 15 minutes.">15 min</button><button data-b="30" data-i="b30" data-hint="Stop the spread at 30 minutes.">30 min</button><button data-b="45" aria-pressed="true" data-i="b45" data-hint="Stop the spread at 45 minutes.">45 min</button>
     </div>
-    <button id="play" class="ghost" data-hint="Play the spread again from minute zero." aria-label="Replay">↻<span class="t"> Replay</span></button><button id="share" class="ghost" data-hint="Copy a link to this exact map: start point, time, view and any trip you opened.">Share<span class="t"> link</span></button>
+    <button id="play" class="ghost" data-ih="play" data-ia="play.a" data-hint="Play the spread again from minute zero." aria-label="Replay"><span class="ic">↻</span><span class="t" data-i="play">Replay</span></button><button id="share" class="ghost" data-ih="share" data-ia="share.a" data-hint="Copy a link to this exact map: start point, time, view and any trip you opened." aria-label="Share link"><span class="ic">↗</span><span class="t" data-i="share">Share link</span></button><button id="save" class="ghost" data-ih="save" data-ia="save.a" data-hint="Download the map as it is now as a PNG image, with a title and legend." aria-label="Save image"><span class="ic">⤓</span><span class="t" data-i="save">Save image</span></button>
   </div>
   </div>
   <div class="opts">
-    <label data-hint="When you set off, from 05:00 to 04:45 the following night. Changes which buses and trains you can catch and how busy the roads are.">Leave at<select id="dep"></select></label>
-    <div class="seg presets" role="group" aria-label="Quick departure times">
-      <button data-t="28800" data-hint="08:00, the morning rush.">Morning peak</button><button data-t="46800" data-hint="13:00, between the peaks.">Midday</button><button data-t="68400" data-hint="19:00, the evening.">Evening</button><button data-t="93600" data-hint="02:00, when only a few night buses run. Metro and tram have stopped.">Night</button>
+    <label data-ih="dep" data-hint="When you set off, from 05:00 to 04:45 the following night. Changes which buses and trains you can catch and how busy the roads are."><span data-i="dep">Leave at</span><select id="dep"></select></label>
+    <div class="seg presets" role="group" aria-label="Quick departure times" data-ia="ga.presets">
+      <button data-t="28800" data-i="p.morning" data-hint="08:00, the morning rush.">Morning peak</button><button data-t="46800" data-i="p.midday" data-hint="13:00, between the peaks.">Midday</button><button data-t="68400" data-i="p.evening" data-hint="19:00, the evening.">Evening</button><button data-t="93600" data-i="p.night" data-hint="02:00, when only a few night buses run. Metro and tram have stopped.">Night</button>
     </div>
-    <label data-car data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual.">Traffic<select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
-    <label data-car data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination.">Car parking<select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
+    <label data-car data-ih="traffic" data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual."><span data-i="traffic">Traffic</span><select id="traffic"><option value="typ" selected data-i="tr.typ">Typical for that hour</option><option value="free" data-i="tr.free">Free-flowing</option><option value="heavy" data-i="tr.heavy">Bad day</option></select></label>
+    <label data-car data-ih="park" data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination."><span data-i="park">Car parking</span><select id="park"><option value="1" selected data-i="pk.1">Include search + walk</option><option value="0" data-i="pk.0">Ignore (door to door)</option></select></label>
   </div>
   <p class="hint" id="hint" aria-live="polite"></p>
 </header>
 <div class="mapwrap">
-  <div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
-  <div class="mapctl seg" role="group" aria-label="What a click on the map does">
-    <button data-c="start" aria-pressed="true" data-hint="Click the map to move the starting point.">Click sets start</button><button data-c="trip" data-hint="Click the map to compare both journeys to that point, step by step.">Click shows trip</button>
+  <div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh" data-i="loading">Loading streets and timetables…</div></div>
+  <div class="mapctl seg" role="group" aria-label="What a click on the map does" data-ia="ga.click">
+    <button data-c="start" aria-pressed="true" data-i="c.start" data-hint="Click the map to move the starting point.">Click sets start</button><button data-c="trip" data-i="c.trip" data-hint="Click the map to compare both journeys to that point, step by step.">Click shows trip</button>
   </div>
 </div>
 <section id="trip" hidden><div id="tripPT"></div><div id="tripCar"></div></section>
 <section class="below">
   <div>
-    <h2>Area within reach</h2>
+    <h2 data-i="area.h">Area within reach</h2>
     <table id="bands"></table>
-    <p class="note" style="margin-top:8px">Land area with at least one reachable street, counted in 100 m × 100 m squares. For scale, the Municipality of Athens covers about 39 km².</p>
+    <p class="note" style="margin-top:8px" data-i="area.note">Land area with at least one reachable street, counted in 100 m × 100 m squares. For scale, the Municipality of Athens covers about 39 km².</p>
     <p class="note" id="note"></p>
-    <details><summary>How car travel times are modelled</summary>
-      <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that follows a working day (morning peak 08:00–09:00, afternoon peak 14:30–15:30, a smaller evening peak, light traffic late at night) and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
+    <details><summary data-i="car.sum">How car travel times are modelled</summary>
+      <p data-i="car.p1">There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that follows a working day (morning peak 08:00–09:00, afternoon peak 14:30–15:30, a smaller evening peak, light traffic late at night) and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
       <table id="carmodel"></table>
-      <p>With parking on, the trip is: 2 min to reach the car, drive to a parking spot, spend time finding a space there (8 min within 2 km of Syntagma, 5 min within 4 km, 3 min within 8 km, 1 min further out), then walk to the destination. Parking a little further away and walking is allowed, and so is not taking the car at all. On the car map, faint streets are ones the car drives past; solid streets are ones you have actually arrived at.</p>
+      <p data-i="car.p2">With parking on, the trip is: 2 min to reach the car, drive to a parking spot, spend time finding a space there (8 min within 2 km of Syntagma, 5 min within 4 km, 3 min within 8 km, 1 min further out), then walk to the destination. Parking a little further away and walking is allowed, and so is not taking the car at all. On the car map, faint streets are ones the car drives past; solid streets are ones you have actually arrived at.</p>
     </details>
   </div>
   <div>
-    <h2>Travel time to places</h2>
+    <h2 data-i="places.h">Travel time to places</h2>
     <table id="places"></table>
   </div>
 </section>
-<footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a> · <a href="about.html">About this map</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
+<footer class="foot"><p data-i="foot1"><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a> · <a href="about.html">About this map</a></p><p class="small" data-i="foot2">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
 <script>
 {
 const WALK = 1.33, BOARD = 60, LIM = 45*60, SIM_MIN_MS = 190;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const hm = s => String(Math.floor(s/3600)%24).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0');
+// ---------- language: English is written in the page; Greek replaces it by key ----------
+const qLang = new URLSearchParams(location.search).get('lang');
+let LANG = ['el','en'].includes(qLang) ? qLang : (localStorage.getItem('lang') || ((navigator.languages || [navigator.language]).some(l => /^el\b/i.test(l)) ? 'el' : 'en'));
+const EL_STATIC = {
+  'title':'Πόσο μακριά φτάνεις σε 45 λεπτά;',
+  'desc':'Από οποιοδήποτε σημείο της Αθήνας, με ΜΜΜ ή με αυτοκίνητο, οποιαδήποτε ώρα μιας εργάσιμης. Πάτα στον χάρτη για να αλλάξεις αφετηρία. ',
+  'why':'Γιατί αυτός ο χάρτης →',
+  'ga.view':'Προβολή χάρτη', 'ga.budget':'Χρονικό όριο', 'ga.presets':'Γρήγορες ώρες αναχώρησης', 'ga.click':'Τι κάνει ένα κλικ στον χάρτη',
+  'v.pt':'ΜΜΜ', 'v.pt.h':'Χρόνος διαδρομής ως κάθε δρόμο, με τα πόδια και με λεωφορείο, τρόλεϊ, μετρό, τραμ και Προαστιακό, με βάση τα πραγματικά δρομολόγια.',
+  'v.car':'Αυτοκίνητο', 'v.car.h':'Χρόνος διαδρομής με αυτοκίνητο, με μοντέλο κυκλοφορίας. Αχνοί δρόμοι: το αυτοκίνητο απλώς περνά. Έντονοι: έχεις παρκάρει και έφτασες με τα πόδια.',
+  'v.both':'Δίπλα δίπλα', 'v.both.h':'Οι χάρτες ΜΜΜ και αυτοκινήτου δίπλα δίπλα. Η μετακίνηση και το ζουμ ισχύουν και για τους δύο.',
+  'v.diff':'Τι είναι πιο γρήγορο', 'v.diff.h':'Μπλε δρόμοι: τα ΜΜΜ φτάνουν πρώτα. Πορτοκαλί: το αυτοκίνητο. Γκρι: περίπου το ίδιο.',
+  'v.mode':'ΜΜΜ ανά μέσο', 'v.mode.h':'Μόνο ΜΜΜ: κάθε δρόμος χρωματίζεται με το λεωφορείο, τρόλεϊ, μετρό, τραμ ή τρένο όπου περνάς τον περισσότερο χρόνο για να φτάσεις εκεί.',
+  'upto':'Έως',
+  'b15':'15 λεπ.', 'b15.h':'Η εξάπλωση σταματά στα 15 λεπτά.', 'b30':'30 λεπ.', 'b30.h':'Η εξάπλωση σταματά στα 30 λεπτά.', 'b45':'45 λεπ.', 'b45.h':'Η εξάπλωση σταματά στα 45 λεπτά.',
+  'play':'Επανάληψη', 'play.a':'Επανάληψη', 'play.h':'Ξαναπαίζει την εξάπλωση από το λεπτό μηδέν.',
+  'share':'Σύνδεσμος', 'share.a':'Κοινοποίηση συνδέσμου', 'share.h':'Αντιγράφει σύνδεσμο για αυτόν ακριβώς τον χάρτη: αφετηρία, ώρα, προβολή και όποια διαδρομή άνοιξες.',
+  'save':'Εικόνα', 'save.a':'Αποθήκευση εικόνας', 'save.h':'Κατεβάζει τον χάρτη όπως είναι τώρα ως εικόνα PNG, με τίτλο και υπόμνημα.',
+  'dep':'Αναχώρηση', 'dep.h':'Πότε ξεκινάς, από 05:00 έως 04:45 το επόμενο ξημέρωμα. Αλλάζει ποια λεωφορεία και τρένα προλαβαίνεις και πόση κίνηση έχουν οι δρόμοι.',
+  'p.morning':'Πρωινή αιχμή', 'p.morning.h':'08:00, η πρωινή αιχμή.', 'p.midday':'Μεσημέρι', 'p.midday.h':'13:00, ανάμεσα στις αιχμές.',
+  'p.evening':'Απόγευμα', 'p.evening.h':'19:00, το απόγευμα.', 'p.night':'Νύχτα', 'p.night.h':'02:00, όταν κυκλοφορούν μόνο λίγα νυχτερινά λεωφορεία. Μετρό και τραμ έχουν σταματήσει.',
+  'traffic':'Κίνηση', 'traffic.h':'Συνήθης: η τυπική κίνηση εργάσιμης για εκείνη την ώρα. Ελεύθερη ροή: άδειοι δρόμοι. Κακή μέρα: περισσότερη κίνηση από το συνηθισμένο.',
+  'tr.typ':'Συνήθης για την ώρα', 'tr.free':'Ελεύθερη ροή', 'tr.heavy':'Κακή μέρα',
+  'park':'Στάθμευση', 'park.h':'Με αναζήτηση: βρίσκεις θέση κοντά στον προορισμό και περπατάς ως την πόρτα. Χωρίς: το αυτοκίνητο σταματά ακριβώς στον προορισμό.',
+  'pk.1':'Με αναζήτηση + περπάτημα', 'pk.0':'Χωρίς (πόρτα-πόρτα)',
+  'loading':'Φόρτωση δρόμων και δρομολογίων…',
+  'c.start':'Το κλικ ορίζει αφετηρία', 'c.start.h':'Πάτα στον χάρτη για να μετακινήσεις την αφετηρία.',
+  'c.trip':'Το κλικ δείχνει διαδρομή', 'c.trip.h':'Πάτα στον χάρτη για να συγκρίνεις βήμα βήμα τις δύο διαδρομές ως εκείνο το σημείο.',
+  'area.h':'Έκταση που φτάνεις',
+  'area.note':'Έκταση με τουλάχιστον έναν δρόμο που φτάνεις, μετρημένη σε τετράγωνα 100 μ. × 100 μ. Για σύγκριση, ο Δήμος Αθηναίων καλύπτει περίπου 39 km².',
+  'car.sum':'Πώς υπολογίζονται οι χρόνοι με αυτοκίνητο',
+  'car.p1':'Δεν υπάρχουν εδώ ζωντανά δεδομένα κυκλοφορίας, οπότε η οδήγηση βασίζεται σε μοντέλο μιας τυπικής εργάσιμης: ταχύτητα ελεύθερης ροής ανά τύπο δρόμου, πολλαπλασιασμένη με συντελεστή συμφόρησης που ακολουθεί την ημέρα (πρωινή αιχμή 08:00–09:00, απογευματινή αιχμή 14:30–15:30, μικρότερη βραδινή αιχμή, λίγη κίνηση αργά τη νύχτα) και είναι ισχυρότερος στις αρτηρίες απ’ ό,τι στους αυτοκινητόδρομους ή στους μικρούς δρόμους. Οι μονόδρομοι τηρούνται και κάθε διασταύρωση προσθέτει καθυστέρηση. Σε ακτίνα ~2,5 χλμ. από το Σύνταγμα η κίνηση είναι επιπλέον 15% πιο αργή.',
+  'car.p2':'Με τη στάθμευση ενεργή, η διαδρομή είναι: 2 λεπτά ως το αυτοκίνητο, οδήγηση ως ένα σημείο στάθμευσης, χρόνος για να βρεις θέση εκεί (8 λεπτά σε ακτίνα 2 χλμ. από το Σύνταγμα, 5 λεπτά ως τα 4 χλμ., 3 λεπτά ως τα 8 χλμ., 1 λεπτό πιο μακριά) και μετά περπάτημα ως τον προορισμό. Μπορείς να παρκάρεις λίγο πιο μακριά και να περπατήσεις, ή και να μην πάρεις καθόλου το αυτοκίνητο. Στον χάρτη αυτοκινήτου, οι αχνοί δρόμοι είναι εκείνοι από όπου απλώς περνά το αυτοκίνητο· οι έντονοι είναι εκείνοι όπου έχεις πραγματικά φτάσει.',
+  'places.h':'Χρόνος ως γνωστά σημεία',
+  'foot1':'<b>Ιωάννης Τσούρος</b> · <a href="https://www.jtsouros.site/">Ιστότοπος</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Πηγαίος κώδικας</a> · <a href="about.html">Σχετικά με τον χάρτη</a>',
+  'foot2':'Δεδομένα χάρτη © <a href="https://www.openstreetmap.org/copyright">συντελεστές OpenStreetMap</a> · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train',
+};
+// place names on the map and in the table; "near" is the phrase for a pin close to that place
+const PLACE_EL = {'Syntagma':['Σύνταγμα','κοντά στο Σύνταγμα'],'Omonia':['Ομόνοια','κοντά στην Ομόνοια'],'Monastiraki':['Μοναστηράκι','κοντά στο Μοναστηράκι'],
+  'Piraeus':['Πειραιάς','κοντά στον Πειραιά'],'Kifisia':['Κηφισιά','κοντά στην Κηφισιά'],'Marousi':['Μαρούσι','κοντά στο Μαρούσι'],'Glyfada':['Γλυφάδα','κοντά στη Γλυφάδα'],
+  'Peristeri':['Περιστέρι','κοντά στο Περιστέρι'],'Kallithea':['Καλλιθέα','κοντά στην Καλλιθέα'],'Chalandri':['Χαλάνδρι','κοντά στο Χαλάνδρι'],'Airport':['Αεροδρόμιο','κοντά στο Αεροδρόμιο'],
+  'Nea Smyrni':['Νέα Σμύρνη','κοντά στη Νέα Σμύρνη'],'Exarchia':['Εξάρχεια','κοντά στα Εξάρχεια'],'Kypseli':['Κυψέλη','κοντά στην Κυψέλη'],'Ilioupoli':['Ηλιούπολη','κοντά στην Ηλιούπολη'],
+  'Faliro':['Φάληρο','κοντά στο Φάληρο'],'Aigaleo':['Αιγάλεω','κοντά στο Αιγάλεω'],'Agia Paraskevi':['Αγία Παρασκευή','κοντά στην Αγία Παρασκευή']};
+const placeName = m => LANG==='el' && PLACE_EL[m.name] ? PLACE_EL[m.name][0] : m.name;
+const plural = (n, one, many) => n===1 ? one : many;
+const D = {
+  en:{day:'Day', night:'Night (after midnight)', 'pane.pt':'Public transport', 'pane.car':'Car', 'pane.diff':'Which is faster', 'pane.mode':'Public transport · main vehicle used',
+    'leg.mode':'Public transport: vehicle you spend longest on', 'leg.fpt':'Transit 10+ min faster', 'leg.same':'same', 'leg.fcar':'Car 10+ min faster', 'leg.min':'45 min',
+    'leg.park':'Faint: car driving past · Solid: parked and arrived', modes:['Bus','Trolley','Metro','Tram','Suburban rail','Walk only'],
+    clk:m=>`${m} min`, clk2:(a,d,f)=>`${a} · left ${d} from ${f}`, near:n=>'near '+n, pin:'your pin',
+    reachPt:(p,c,w,b)=>`${p} within ${b} min <i>· car ${c} · walk ${w}</i>`, reachCar:(p,c,b)=>`${c} within ${b} min <i>· transit ${p}</i>`, reachDiff:(p,c,b)=>`Within ${b} min: transit ${p} <i>· car ${c}</i>`,
+    'trip.pt':'By public transport', 'trip.car':'By car', over45:'Over 45 min', noReach:'Not reachable within 45 minutes from this start.', arrive:t=>`arrive ${t}`,
+    walkCar:m=>`Walk ${m} m to the car`, walkStop:(m,s)=>`Walk ${m} m to ${s}`, walkDest:m=>`Walk ${m} m to the destination`, quicker:'Quicker on foot than by car',
+    waitAt:s=>`Wait at ${s}`, stops:n=>`${n} ${plural(n,'stop','stops')}`, drive:k=>`Drive ${k} km`, parkFind:'Find a parking space', lt1:'<1 min', mins:n=>`${n} min`, stop:'stop',
+    within:'Within', thPt:'Transit', thCar:'Car', thWalk:'Walk only', place:'Place', over:'over 45', road:'Road type', free:'Free flow', now:'Now (traffic)', kmh:'km/h',
+    classes:['Motorway','Trunk road','Primary','Secondary','Tertiary','Residential','Living street'],
+    note:(tr,t,pk)=>`Timetables: ${meta.day}. Walking at 4.8 km/h on OSM streets, 1 min boarding buffer, transfers up to ~350 m between stops. Car: ${tr} traffic at ${t}, ${pk}.`,
+    trn:{typ:'typical for that hour', free:'free-flowing', heavy:'bad day'}, pkOn:'parking search and walk included', pkOff:'door to door, no parking time',
+    loadErr:'Could not load the network data: ', copied:'Copied',
+    imgTitle:b=>`How far can you reach in ${b} minutes?`, imgSub:(f,t,v)=>`From ${f} · leaving ${t} · ${v}`, imgFoot:'Map data © OpenStreetMap contributors · Timetables: OASA, STASY, Hellenic Train',
+    docTitle:'Athens transit reach'},
+  el:{day:'Ημέρα', night:'Νύχτα (μετά τα μεσάνυχτα)', 'pane.pt':'ΜΜΜ', 'pane.car':'Αυτοκίνητο', 'pane.diff':'Τι είναι πιο γρήγορο', 'pane.mode':'ΜΜΜ · κύριο μέσο',
+    'leg.mode':'ΜΜΜ: το μέσο όπου περνάς τον περισσότερο χρόνο', 'leg.fpt':'ΜΜΜ 10+ λεπτά πιο γρήγορα', 'leg.same':'ίδιο', 'leg.fcar':'Αυτοκίνητο 10+ λεπτά πιο γρήγορα', 'leg.min':'45 λεπ.',
+    'leg.park':'Αχνό: το αυτοκίνητο περνά · Έντονο: πάρκαρες και έφτασες', modes:['Λεωφορείο','Τρόλεϊ','Μετρό','Τραμ','Προαστιακός','Μόνο με τα πόδια'],
+    clk:m=>`${m} λεπτά`, clk2:(a,d,f)=>`${a} · αναχώρηση ${d} · αφετηρία: ${f}`, near:null, pin:'σημείο στον χάρτη',
+    reachPt:(p,c,w,b)=>`${p} σε ${b} λεπτά <i>· αυτοκίνητο ${c} · με τα πόδια ${w}</i>`, reachCar:(p,c,b)=>`${c} σε ${b} λεπτά <i>· ΜΜΜ ${p}</i>`, reachDiff:(p,c,b)=>`Σε ${b} λεπτά: ΜΜΜ ${p} <i>· αυτοκίνητο ${c}</i>`,
+    'trip.pt':'Με ΜΜΜ', 'trip.car':'Με αυτοκίνητο', over45:'Πάνω από 45 λεπτά', noReach:'Δεν φτάνεις εκεί σε 45 λεπτά από αυτή την αφετηρία.', arrive:t=>`άφιξη ${t}`,
+    walkCar:m=>`Περπάτημα ${m} μ. ως το αυτοκίνητο`, walkStop:(m,s)=>`Περπάτημα ${m} μ. ως ${s}`, walkDest:m=>`Περπάτημα ${m} μ. ως τον προορισμό`, quicker:'Πιο γρήγορα με τα πόδια παρά με αυτοκίνητο',
+    waitAt:s=>`Αναμονή στη στάση ${s}`, stops:n=>`${n} ${plural(n,'στάση','στάσεις')}`, drive:k=>`Οδήγηση ${k} χλμ.`, parkFind:'Αναζήτηση θέσης στάθμευσης', lt1:'<1 λεπ.', mins:n=>`${n} λεπ.`, stop:'στάση',
+    within:'Σε', thPt:'ΜΜΜ', thCar:'Αυτοκίνητο', thWalk:'Μόνο με τα πόδια', place:'Σημείο', over:'πάνω από 45', road:'Τύπος δρόμου', free:'Ελεύθερη ροή', now:'Τώρα (με κίνηση)', kmh:'χλμ./ώρα',
+    classes:['Αυτοκινητόδρομος','Οδός ταχείας κυκλοφορίας','Κύρια αρτηρία','Δευτερεύουσα αρτηρία','Συλλεκτήρια οδός','Τοπική οδός','Δρόμος ήπιας κυκλοφορίας'],
+    note:(tr,t,pk)=>`Δρομολόγια: εργάσιμη ημέρα (Τρίτη), λεωφορεία και τρόλεϊ ΟΑΣΑ, μετρό και τραμ ΣΤΑΣΥ (θερινά δρομολόγια 2026), Προαστιακός της Hellenic Train (1 Δεκ. 2026). Περπάτημα με 4,8 χλμ./ώρα σε δρόμους του OSM, 1 λεπτό περιθώριο επιβίβασης, μετεπιβιβάσεις έως ~350 μ. μεταξύ στάσεων. Αυτοκίνητο: ${tr} στις ${t}, ${pk}.`,
+    trn:{typ:'συνήθης κίνηση', free:'ελεύθερη ροή', heavy:'κίνηση κακής μέρας'}, pkOn:'με αναζήτηση στάθμευσης και περπάτημα', pkOff:'πόρτα-πόρτα, χωρίς χρόνο στάθμευσης',
+    loadErr:'Δεν ήταν δυνατή η φόρτωση των δεδομένων: ', copied:'Αντιγράφηκε',
+    imgTitle:b=>`Πόσο μακριά φτάνεις σε ${b} λεπτά;`, imgSub:(f,t,v)=>`Αφετηρία: ${f} · αναχώρηση ${t} · ${v}`, imgFoot:'Δεδομένα χάρτη © συντελεστές OpenStreetMap · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train',
+    docTitle:'Αθήνα: πόσο μακριά φτάνεις με ΜΜΜ'}};
+const tr = (k, ...a) => {const v = D[LANG][k] ?? D.en[k]; return typeof v === 'function' ? v(...a) : v};
+const num = (v, d=0) => v.toLocaleString(LANG==='el' ? 'el-GR' : 'en-GB', {minimumFractionDigits:d, maximumFractionDigits:d});
+// static text: remember the English the page was written with, then swap by key
+const EN_STATIC = {};
+function applyStatic(){
+  const pick = k => LANG==='el' && EL_STATIC[k] != null ? EL_STATIC[k] : EN_STATIC[k];
+  document.querySelectorAll('[data-i]').forEach(el => {const k = el.dataset.i; if (!(k in EN_STATIC)) EN_STATIC[k] = el.innerHTML; el.innerHTML = pick(k)});
+  document.querySelectorAll('[data-hint]').forEach(el => {const k = (el.dataset.ih || el.dataset.i) + '.h'; if (!(k in EN_STATIC)) EN_STATIC[k] = el.dataset.hint; el.dataset.hint = pick(k)});
+  document.querySelectorAll('[data-ia]').forEach(el => {const k = el.dataset.ia; if (!(k in EN_STATIC)) EN_STATIC[k] = el.getAttribute('aria-label'); el.setAttribute('aria-label', pick(k))});
+  document.documentElement.lang = LANG; document.title = tr('docTitle');
+  const b = document.getElementById('lang'); b.textContent = LANG==='el' ? 'EN' : 'ΕΛ'; b.lang = LANG==='el' ? 'en' : 'el'; b.setAttribute('aria-label', LANG==='el' ? 'English' : 'Ελληνικά');
+}
+applyStatic();
 // car model: class 0 motorway,1 trunk,2 primary,3 secondary,4 tertiary,5 residential,6 living street,7 pedestrian
 const CLASS = ['Motorway','Trunk road','Primary','Secondary','Tertiary','Residential','Living street'];
 const FREE_KMH = [95, 65, 45, 38, 32, 25, 12, 0];
@@ -211,8 +309,8 @@ const PEAK_MULT = [1.7, 1.8, 1.8, 1.7, 1.5, 1.3, 1.1, 1];
 const JUNC_S = [0, 4, 6, 5, 4, 2, 1, 0];
 // share of peak congestion by hour of a working day (morning peak 08–09, afternoon peak 14:30–15:30, evening 18–19)
 const PROFILE = [[0,.05],[5,.05],[6,.15],[6.5,.3],[7,.55],[7.5,.85],[8,1],[9,.95],[9.5,.8],[10,.6],[11,.55],[12.5,.6],[13.5,.75],[14.5,.9],[15.5,.85],[16.5,.7],[17.5,.75],[19,.8],[20,.6],[21,.4],[22,.25],[23,.15],[24.5,.05]];
-let net, pt, meta, adjOff, adjE, origin = {x:0, y:0, label:'Syntagma'}, dep = 8*3600, budget = 45, viewMode = 'pt';
-let res = null, view = {cx:0, cy:2000, s:0.05}, anim = {t:0, start:0, raf:0}, railStops = [];
+let net, pt, meta, adjOff, adjE, origin = {x:0, y:0, pin:{m:0, near:false}}, dep = 8*3600, budget = 45, viewMode = 'pt';
+let depGroups = [], res = null, view = {cx:0, cy:2000, s:0.05}, anim = {t:0, start:0, raf:0}, railStops = [];
 
 async function load(){
   const bin = u => fetch(u).then(r=>r.json()).then(b=>Uint8Array.from(atob(b), c=>c.charCodeAt(0)).buffer);
@@ -237,7 +335,7 @@ async function load(){
   adjOff = deg.slice(); adjE = new Uint32Array(2*E); const fill = deg.slice();
   for (let e=0;e<E;e++){adjE[fill[net.u[e]]++]=e;adjE[fill[net.v[e]]++]=e}
   const day = document.createElement('optgroup'), night = document.createElement('optgroup');
-  day.label = 'Day'; night.label = 'Night (after midnight)';
+  day.label = tr('day'); night.label = tr('night'); depGroups = [day, night];
   for (let t=meta.depFirst; t<=meta.depLast; t+=15*60){const op=document.createElement('option'); op.value=t; op.textContent=hm(t); if(t===dep) op.selected=true; (t>=24*3600 ? night : day).append(op)}
   $('dep').append(day, night);
   railStops = []; for (let i=0;i<S;i++) if (pt.rail[i]) railStops.push(i);
@@ -346,12 +444,12 @@ const css = n => {probe.style.color = `var(${n})`; return getComputedStyle(probe
 class Pane {
   constructor(kind){
     this.kind = kind; this.el = document.createElement('div'); this.el.className = 'pane';
-    const legend = kind==='mode' ? `<div class="chips">${MODES.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join('')}</div><div class="lnote">Public transport: vehicle you spend longest on</div>`
-      : `<div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div>`
-        + (kind==='car' ? '<div class="lnote" data-park>Faint: car driving past · Solid: parked and arrived</div>' : '');
+    const legend = kind==='mode' ? `<div class="chips">${MODES.map(([,c],i)=>`<span><span class="dot" style="background:${c}"></span>${tr('modes')[i]}</span>`).join('')}</div><div class="lnote">${tr('leg.mode')}</div>`
+      : `<div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?`<span>${tr('leg.fpt')}</span><span>${tr('leg.same')}</span><span>${tr('leg.fcar')}</span>`:`<span>0</span><span>15</span><span>30</span><span>${tr('leg.min')}</span>`}</div>`
+        + (kind==='car' ? `<div class="lnote" data-park>${tr('leg.park')}</div>` : '');
     this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span><span class="reach"></span></div><div class="legend">${legend}</div>`;
     [this.base, this.ghost, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
-    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster', mode:'Public transport · main vehicle used'}[kind];
+    this.el.querySelector('em').textContent = tr('pane.' + kind);
     this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span'); this.reach = this.el.querySelector('.reach');
   }
   resize(){const r=this.el.getBoundingClientRect(); this.W=r.width; this.H=r.height; const D=Math.min(2,devicePixelRatio||1);
@@ -375,7 +473,7 @@ class Pane {
     for (const l of meta.lines){c.strokeStyle=l.color; c.globalAlpha=0.4; c.lineWidth=Math.max(1.5,this.lw()); c.beginPath();
       l.pts.forEach(([x,y],i)=>i?c.lineTo(this.X(x),this.Y(y)):c.moveTo(this.X(x),this.Y(y))); c.stroke()}
     c.setLineDash([]); c.globalAlpha=1; c.font='600 12px Commissioner,system-ui'; c.fillStyle=css('--mute'); c.textAlign='center';
-    for (const m of meta.marks) c.fillText(m.name, this.X(m.x), this.Y(m.y)-8);
+    for (const m of meta.marks) c.fillText(placeName(m), this.X(m.x), this.Y(m.y)-8);
   }
   setData(d){this.d = d; this.reset()}
   drawTrip(f){
@@ -416,7 +514,7 @@ class Pane {
       for (const s of railStops) if (E.T[pt.node[s]] <= lim){f.beginPath(); f.arc(this.X(pt.xy[2*s]),this.Y(pt.xy[2*s+1]),2.6,0,7); f.fill(); f.stroke()}}
     if (trip) this.drawTrip(f);
     const x=this.X(origin.x), y=this.Y(origin.y); f.fillStyle=css('--ink'); f.beginPath(); f.arc(x,y,7,0,7); f.fill(); f.fillStyle=css('--bg'); f.beginPath(); f.arc(x,y,3,0,7); f.fill();
-    this.clk.textContent = Math.floor(lim/60) + ' min'; this.clk2.textContent = hm(dep + lim) + ' · left ' + hm(dep) + ' from ' + origin.label;
+    this.clk.textContent = tr('clk', Math.floor(lim/60)); this.clk2.textContent = tr('clk2', hm(dep + lim), hm(dep), originLabel());
     this.reach.innerHTML = reachLine(this.kind);
   }
 }
@@ -453,7 +551,7 @@ let dest = null, clickMode = 'start', trip = null;
 // a new start point makes the old trip meaningless: drop its cards, its route on the map and its place in the link
 function clearTrip(){dest = null; trip = null; $('trip').hidden = true}
 function chain(T, n){const edges=[]; let len=0, g=0; while (T.pe[n] >= 0 && g++ < 1e5){const e=T.pe[n]; edges.push(e); len+=net.len[e]; n = net.u[e]===n ? net.v[e] : net.u[e]} return {edges, len}}
-const stopName = s => meta.stopNames[s] || 'stop';
+const stopName = s => meta.stopNames[s] || tr('stop');
 function ptTrip(d){
   const P=res.P, T=P.T; if (!(T[d] <= LIM)) return null;
   const legs=[], last=chain(T, d), k=T.src[d];
@@ -484,24 +582,25 @@ function carTrip(){
 function showTrip(){
   const [d] = nearestNode(dest.x, dest.y, walkMask);
   trip = {pt: ptTrip(d), car: carTrip()};
-  const mn = t => t < 30 ? '<1 min' : Math.round(t/60)+' min';
+  const mn = t => t < 30 ? tr('lt1') : tr('mins', Math.round(t/60));
   const col = L => L.k==='ride' ? MODES[L.mode][1] : L.k==='drive' ? '#e8590c' : L.k==='park' ? '#f6a26b' : L.k==='wait' ? 'var(--line)' : '#9aa0a6';
   const text = L => {
-    if (L.k==='walk') return L.note ? esc(L.note) + ` · ${Math.round(L.m)} m` : `Walk ${Math.round(L.m)} m` + (L.to==='car' ? ' to the car' : typeof L.to==='number' ? ` to ${esc(stopName(L.to))}` : ' to the destination');
-    if (L.k==='wait') return `Wait at ${esc(stopName(L.at))}`;
-    if (L.k==='ride') return `<span class="tag" style="background:${MODES[L.mode][1]}">${esc(L.route)}</span>${esc(stopName(L.from))} → ${esc(stopName(L.to))} · ${L.stops.length-1} stop${L.stops.length>2?'s':''}`;
-    if (L.k==='drive') return `Drive ${(L.m/1000).toFixed(1)} km`;
-    return 'Find a parking space';
+    const m = num(Math.round(L.m));
+    if (L.k==='walk') return L.note ? esc(tr('quicker')) + ` · ${m} ${LANG==='el'?'μ.':'m'}` : L.to==='car' ? tr('walkCar', m) : typeof L.to==='number' ? tr('walkStop', m, esc(stopName(L.to))) : tr('walkDest', m);
+    if (L.k==='wait') return tr('waitAt', esc(stopName(L.at)));
+    if (L.k==='ride') return `<span class="tag" style="background:${MODES[L.mode][1]}">${esc(L.route)}</span>${esc(stopName(L.from))} → ${esc(stopName(L.to))} · ${tr('stops', L.stops.length-1)}`;
+    if (L.k==='drive') return tr('drive', num(L.m/1000, 1));
+    return tr('parkFind');
   };
   const card = (name, T) => {
-    if (!T) return `<h3>${name}</h3><div class="tot no">Over 45 min</div><p class="note">Not reachable within 45 minutes from this start.</p>`;
+    if (!T) return `<h3>${name}</h3><div class="tot no">${tr('over45')}</div><p class="note">${tr('noReach')}</p>`;
     let clock = dep;
     const steps = T.legs.filter(L=>L.t>=1).map(L => {const row = `<li><span class="clk">${hm(clock)}</span><span>${text(L)}</span><span class="d">${mn(L.t)}</span></li>`; clock += L.t; return row}).join('');
-    return `<h3>${name}</h3><div class="tot">${Math.round(T.total/60)} min <span class="no" style="font-size:15px;font-weight:600">arrive ${hm(dep+T.total)}</span></div>
+    return `<h3>${name}</h3><div class="tot">${tr('mins', Math.round(T.total/60))} <span class="no" style="font-size:15px;font-weight:600">${tr('arrive', hm(dep+T.total))}</span></div>
       <div class="legs">${T.legs.map(L=>`<i style="width:${L.t/T.total*100}%;background:${col(L)}" title="${L.k}"></i>`).join('')}</div><ul class="steps">${steps}</ul>`;
   };
-  $('tripPT').innerHTML = card('By public transport', trip.pt);
-  $('tripCar').innerHTML = card('By car', trip.car);
+  $('tripPT').innerHTML = card(tr('trip.pt'), trip.pt);
+  $('tripCar').innerHTML = card(tr('trip.car'), trip.car);
   $('trip').hidden = false;
 }
 
@@ -524,23 +623,22 @@ function near(T, m, mask){let best=Infinity; const xy=net.xy;
   return best}
 // headline under each map's clock: area within the chosen budget, with the other mode for comparison
 function reachLine(kind){const r = res && res.area && res.area.find(r=>r.b===budget); if (!r) return '';
-  const f = v => (v<10 ? v.toFixed(1) : Math.round(v).toLocaleString('en')) + ' km²';
-  const pt = `transit ${f(r.p)}`, car = `car ${f(r.c)}`;
-  if (kind==='car') return `${f(r.c)} within ${budget} min <i>· ${pt}</i>`;
-  if (kind==='diff') return `Within ${budget} min: ${pt} <i>· ${car}</i>`;
-  return `${f(r.p)} within ${budget} min <i>· ${car} · walk ${f(r.w)}</i>`}
+  const f = v => num(v, v<10 ? 1 : 0) + ' km²';
+  if (kind==='car') return tr('reachCar', f(r.p), f(r.c), budget);
+  if (kind==='diff') return tr('reachDiff', f(r.p), f(r.c), budget);
+  return tr('reachPt', f(r.p), f(r.c), f(r.w), budget)}
 function stats(){
   const rows=[15,30,45].map(b=>({b, p:area(res.pt.T,b*60,1), c:res.C.park?area(res.car.T,b*60,1):area(res.car.T,b*60,6,res.car.w), w:area(res.walk,b*60,1)}));
   res.area = rows;
-  const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>(v<10?v.toFixed(1):Math.round(v).toLocaleString('en'))+' km²';
-  $('bands').innerHTML=`<tr><th>Within</th><th><span class="dot" style="background:var(--c0)"></span>Transit</th><th><span class="dot" style="background:var(--car)"></span>Car</th><th>Walk only</th></tr>`+
-    rows.map(r=>`<tr><td>${r.b} min</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
-  const tm = t => t<=LIM ? Math.round(t/60)+' min' : 'over 45';
-  $('places').innerHTML='<tr><th>Place</th><th>Transit</th><th>Car</th></tr>'+meta.marks.map(m=>({m, a:near(res.pt.T,m,walkMask), b:near(res.car.T,m,res.C.park?walkMask:carMask)}))
+  const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>num(v, v<10?1:0)+' km²';
+  $('bands').innerHTML=`<tr><th>${tr('within')}</th><th><span class="dot" style="background:var(--c0)"></span>${tr('thPt')}</th><th><span class="dot" style="background:var(--car)"></span>${tr('thCar')}</th><th>${tr('thWalk')}</th></tr>`+
+    rows.map(r=>`<tr><td>${tr('mins', r.b)}</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
+  const tm = t => t<=LIM ? tr('mins', Math.round(t/60)) : tr('over');
+  $('places').innerHTML=`<tr><th>${tr('place')}</th><th>${tr('thPt')}</th><th>${tr('thCar')}</th></tr>`+meta.marks.map(m=>({m, a:near(res.pt.T,m,walkMask), b:near(res.car.T,m,res.C.park?walkMask:carMask)}))
     .sort((x,y)=>Math.min(x.a,x.b)-Math.min(y.a,y.b))
-    .map(({m,a,b})=>`<tr><td>${esc(m.name)}</td><td class="${a<=b&&a<=LIM?'win':''} ${a<=LIM?'':'no'}">${tm(a)}</td><td class="${b<a&&b<=LIM?'win':''} ${b<=LIM?'':'no'}">${tm(b)}</td></tr>`).join('');
-  $('carmodel').innerHTML='<tr><th>Road type</th><th>Free flow</th><th>Now (traffic)</th></tr>'+CLASS.map((n,i)=>`<tr><td>${n}</td><td>${FREE_KMH[i]} km/h</td><td>${Math.round(FREE_KMH[i]/res.mult[i])} km/h</td></tr>`).join('');
-  $('note').textContent=`Timetables: ${meta.day}. Walking at 4.8 km/h on OSM streets, 1 min boarding buffer, transfers up to ~350 m between stops. Car: ${$('traffic').selectedOptions[0].text.toLowerCase()} traffic at ${hm(dep)}, ${$('park').value==='1'?'parking search and walk included':'door to door, no parking time'}.`;
+    .map(({m,a,b})=>`<tr><td>${esc(placeName(m))}</td><td class="${a<=b&&a<=LIM?'win':''} ${a<=LIM?'':'no'}">${tm(a)}</td><td class="${b<a&&b<=LIM?'win':''} ${b<=LIM?'':'no'}">${tm(b)}</td></tr>`).join('');
+  $('carmodel').innerHTML=`<tr><th>${tr('road')}</th><th>${tr('free')}</th><th>${tr('now')}</th></tr>`+tr('classes').map((n,i)=>`<tr><td>${n}</td><td>${FREE_KMH[i]} ${tr('kmh')}</td><td>${Math.round(FREE_KMH[i]/res.mult[i])} ${tr('kmh')}</td></tr>`).join('');
+  $('note').textContent=tr('note', tr('trn')[$('traffic').value], hm(dep), $('park').value==='1' ? tr('pkOn') : tr('pkOff'));
 }
 let runId = 0;
 async function run(){
@@ -566,15 +664,18 @@ $('maps').addEventListener('pointermove', ev => {if(!ptrs.has(ev.pointerId)||!dr
 const up = ev => {const was=ptrs.has(ev.pointerId); ptrs.delete(ev.pointerId); if(!was||!drag)return;
   if (!moved && ptrs.size===0 && ev.type==='pointerup'){const p=drag.pane, r=p.el.getBoundingClientRect(), px=ev.clientX-r.left, py=ev.clientY-r.top;
     const pick={x:view.cx+(px-p.W/2)/view.s, y:view.cy-(py-p.H/2)/view.s};
-    if (clickMode==='trip'){dest=pick; showTrip(); saveLink(); panes.forEach(q=>q.frame(anim.t))} else {origin={...pick, label:pinLabel(pick)}; clearTrip(); run()}}
+    if (clickMode==='trip'){dest=pick; showTrip(); saveLink(); panes.forEach(q=>q.frame(anim.t))} else {origin={...pick, pin:pinOf(pick)}; clearTrip(); run()}}
   if (ptrs.size===0) drag=null};
 $('maps').addEventListener('pointerup', up); $('maps').addEventListener('pointercancel', up);
 $('maps').addEventListener('wheel', ev => {ev.preventDefault(); const p=paneAt(ev), r=p.el.getBoundingClientRect(); zoomAt(Math.exp(-ev.deltaY*0.0015), ev.clientX-r.left, ev.clientY-r.top, p)}, {passive:false});
 function zoomAt(f, px, py, p){const wx=view.cx+(px-p.W/2)/view.s, wy=view.cy-(py-p.H/2)/view.s; view.s=Math.max(0.005,Math.min(2,view.s*f));
   view.cx=wx-(px-p.W/2)/view.s; view.cy=wy+(py-p.H/2)/view.s; schedule()}
 // name a pin after the nearest named place, if one is close
-function pinLabel(o){let best=null, bd=3000; for (const m of meta.marks){const d=Math.hypot(m.x-o.x, m.y-o.y); if (d<bd){bd=d; best=m}}
-  return best ? (bd < 300 ? best.name : 'near ' + best.name) : 'your pin'}
+function pinOf(o){let best=-1, bd=3000; meta.marks.forEach((m,i)=>{const d=Math.hypot(m.x-o.x, m.y-o.y); if (d<bd){bd=d; best=i}});
+  return {m:best, near:bd>=300}}
+function originLabel(){const {m, near} = origin.pin; if (m < 0) return tr('pin'); const mk = meta.marks[m];
+  if (!near) return placeName(mk);
+  return LANG==='el' ? (PLACE_EL[mk.name] ? PLACE_EL[mk.name][1] : 'κοντά σε ' + placeName(mk)) : tr('near', mk.name)}
 // ---------- shareable links: start, departure, view, budget, car options and trip destination live in the URL ----------
 const DEF = {dep:8*3600, budget:45, view:'pt', traffic:'typ', park:'1'};
 const hhmm = t => hm(t).replace(':','');
@@ -586,10 +687,11 @@ function linkState(){const q = new URLSearchParams();
   if ($('traffic').value !== DEF.traffic) q.set('traffic', $('traffic').value);
   if ($('park').value !== DEF.park) q.set('park', 'no');
   if (dest) q.set('to', Math.round(dest.x)+','+Math.round(dest.y));
+  if (LANG === 'el') q.set('lang', 'el');
   return q}
 function saveLink(){if (POSTER) return; const q = linkState().toString().replace(/%2C/g, ','); history.replaceState(null, '', location.pathname + (q ? '?' + q : ''))}
 function readLink(){const q = new URLSearchParams(location.search), xy = v => {const m = /^(-?\d+),(-?\d+)$/.exec(v || ''); return m ? {x:+m[1], y:+m[2]} : null};
-  const o = xy(q.get('from')); if (o) origin = {...o, label:pinLabel(o)};
+  const o = xy(q.get('from')); if (o) origin = {...o, pin:pinOf(o)};
   const a = /^(\d\d)(\d\d)$/.exec(q.get('at') || '');
   if (a){let t = (+a[1])*3600 + (+a[2])*60; if (t < meta.depFirst) t += 24*3600; t -= t % 900; if (t >= meta.depFirst && t <= meta.depLast){dep = t; $('dep').value = t}}
   const v = q.get('view'); if (['pt','car','both','diff','mode'].includes(v)) viewMode = v;
@@ -603,8 +705,57 @@ function readLink(){const q = new URLSearchParams(location.search), xy = v => {c
 $('share').addEventListener('click', async () => {saveLink(); const url = location.href, btn = $('share'), was = btn.innerHTML;
   try {
     if (navigator.share && matchMedia('(pointer: coarse)').matches) await navigator.share({title: document.title, url});
-    else {await navigator.clipboard.writeText(url); btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = was, 1800)}
+    else {await navigator.clipboard.writeText(url); btn.innerHTML = `<span class="ic">✓</span><span class="t">${tr('copied')}</span>`; setTimeout(() => btn.innerHTML = was, 1800)}
   } catch (e) {}});
+// ---------- language switch ----------
+$('lang').addEventListener('click', () => {
+  LANG = LANG==='el' ? 'en' : 'el'; localStorage.setItem('lang', LANG); applyStatic();
+  if (depGroups.length){depGroups[0].label = tr('day'); depGroups[1].label = tr('night')}
+  showHint(); saveLink();
+  if (net){layout(); if (res){stats(); if (dest) showTrip()}}});
+// ---------- save the map as a PNG: title, start and time on top, legend and credits on the image ----------
+async function saveImage(){
+  if (!net || !panes.length) return;
+  cancelAnimationFrame(anim.raf); anim.t = budget*60; panes.forEach(p => p.frame(anim.t));
+  await document.fonts.ready;
+  const S = 2, pad = 24, top = 92, foot = 40, H = Math.round(panes[0].H), W = Math.round(panes.reduce((a,p) => a + p.W, 0)) + panes.length - 1;
+  const c = document.createElement('canvas'); c.width = W*S; c.height = (top+H+foot)*S;
+  const x = c.getContext('2d'), F = (w, px) => `${w} ${px}px Commissioner, system-ui, sans-serif`, bg = css('--bg'), ink = css('--ink'), mute = css('--mute');
+  x.scale(S, S); x.fillStyle = bg; x.fillRect(0, 0, W, top+H+foot);
+  const text = (t, X, Y, font, col, align='left') => {x.font = font; x.textAlign = align; x.lineJoin = 'round'; x.lineWidth = 4; x.strokeStyle = bg; x.strokeText(t, X, Y); x.fillStyle = col; x.fillText(t, X, Y)};
+  const vname = document.querySelector("[data-v][aria-pressed=true]").textContent.trim();
+  text(tr('imgTitle', budget), pad, 44, F(800, 28), ink);
+  text(tr('imgSub', originLabel(), hm(dep), vname), pad, 72, F(500, 16), mute);
+  let ox = 0;
+  for (const p of panes){
+    x.save(); x.beginPath(); x.rect(ox, top, p.W, H); x.clip();
+    for (const l of [p.base, p.ghost, p.done, p.front]) x.drawImage(l.c, ox, top, p.W, p.H);
+    x.restore();
+    text(p.el.querySelector('em').textContent, ox+16, top+26, F(700, 15), ink);
+    text(p.reach.textContent, ox+16, top+48, F(600, 14), ink);
+    const lw = Math.min(300, p.W*0.6), ly = top + H - 34;
+    if (p.kind === 'mode'){let cx = ox+16, cy = ly+6;
+      MODES.forEach(([, col], i) => {const n = tr('modes')[i]; x.font = F(500, 13); const w = 18 + x.measureText(n).width + 14; if (cx + w > ox + p.W - 16){cx = ox+16; cy += 20}
+        x.fillStyle = col; x.beginPath(); x.arc(cx+5, cy-4, 5, 0, 7); x.fill(); text(n, cx+14, cy, F(500, 13), ink); cx += w})}
+    else {const g = x.createLinearGradient(ox+16, 0, ox+16+lw, 0);
+      (p.kind === 'diff' ? ['#1d2bd8','#7d8ce8','#b3aca6','#f6a26b','#e8590c'] : [css('--c0'), css('--c1'), css('--c2')]).forEach((col, i, a) => g.addColorStop(i/(a.length-1), col));
+      x.fillStyle = g; x.beginPath(); x.roundRect(ox+16, ly, lw, 10, 5); x.fill();
+      const ticks = p.kind === 'diff' ? [tr('leg.fpt'), tr('leg.same'), tr('leg.fcar')] : ['0', '15', '30', tr('leg.min')];
+      ticks.forEach((t, i) => text(t, ox+16 + lw*i/(ticks.length-1), ly+26, F(500, 12), mute, i === 0 ? 'left' : i === ticks.length-1 ? 'right' : 'center'))}
+    if (ox){x.fillStyle = css('--line'); x.fillRect(ox-1, top, 1, H)}
+    ox += p.W + 1;
+  }
+  x.fillStyle = css('--line'); x.fillRect(0, top, W, 1); x.fillRect(0, top+H, W, 1);
+  text(tr('imgFoot'), pad, top+H+26, F(500, 12), mute);
+  text('athens-transit-reach.vercel.app', W-pad, top+H+26, F(700, 13), ink, 'right');
+  const blob = await new Promise(r => c.toBlob(r, 'image/png')), name = `athens-reach-${viewMode}-${budget}min-${hhmm(dep)}.png`;
+  const file = new File([blob], name, {type: 'image/png'});
+  if (matchMedia('(pointer: coarse)').matches && navigator.canShare && navigator.canShare({files: [file]})){
+    try {await navigator.share({files: [file], title: document.title}); return} catch (e) {if (e.name === 'AbortError') return}}
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.append(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+$('save').addEventListener('click', saveImage);
 let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{pend=0; redraw()})}
 const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
@@ -619,7 +770,7 @@ $('play').addEventListener('click', play);
 // explanation line: the hovered/focused control, otherwise the current view
 function showHint(el){
   el = el || document.querySelector('[data-v][aria-pressed=true]');
-  const name = el.tagName==='LABEL' ? el.firstChild.textContent.trim() : el.textContent.replace('↻','').trim();
+  const name = (el.querySelector('.t, [data-i]') || el).textContent.trim();
   const b = document.createElement('b'); b.textContent = name;
   $('hint').replaceChildren(b, document.createTextNode(el.dataset.hint));
 }
@@ -646,7 +797,7 @@ load().then(() => {
   const p = panes[0]; view.s = Math.min(p.W/26000, p.H/22000);
   if (POSTER){view.s = p.H/19000; view.cx = -7800; view.cy = 2600}
   run();
-}).catch(err => {$('status').textContent = 'Could not load the network data: ' + err.message});
+}).catch(err => {$('status').textContent = tr('loadErr') + err.message});
 }
 </script>
 </body>

@@ -6,6 +6,9 @@
 <title>About · Athens transit reach</title>
 <meta name="description" content="Why this map of public transport and car reach in Athens was made: to show how accessible the city is by public transport, find the areas it serves poorly, and put traffic congestion in context. By Ioannis Tsouros.">
 <meta name="author" content="Ioannis Tsouros">
+<link rel="alternate" hreflang="en" href="https://athens-transit-reach.vercel.app/about">
+<link rel="alternate" hreflang="el" href="https://athens-transit-reach.vercel.app/about?lang=el">
+<link rel="alternate" hreflang="x-default" href="https://athens-transit-reach.vercel.app/about">
 <link rel="canonical" href="https://athens-transit-reach.vercel.app/about">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Why this map · Athens transit reach">
@@ -39,6 +42,9 @@
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Commissioner,system-ui,sans-serif;overflow-x:clip}
 .top{padding:22px max(3vw,16px) 0}
 .back{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:700;background:var(--panel)}
+.lang{position:absolute;top:22px;right:max(3vw,16px);min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;background:transparent;color:var(--ink);font:700 14px Commissioner,system-ui,sans-serif;cursor:pointer}
+.lang:hover{border-color:var(--ink)}.lang:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
+body{position:relative}
 .back:hover{border-color:var(--ink)}.back:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
 h1{font-size:clamp(28px,3.6vw,42px);line-height:1.05;margin:22px 0 0;font-weight:800;text-wrap:balance}
 .no{color:var(--mute)}
@@ -64,7 +70,9 @@ footer a{color:inherit}
 </style>
 </head>
 <body>
-<div class="top"><a class="back" href="index.html">← Back to the map</a><h1>How far can you reach in 45 minutes?</h1></div>
+<button id="lang" class="lang" lang="el" aria-label="Ελληνικά">ΕΛ</button>
+<div data-l="en" lang="en">
+<div class="top"><div class="bar"><a class="back" href="index.html">← Back to the map</a></div><h1>How far can you reach in 45 minutes?</h1></div>
 <main class="about" aria-labelledby="why">
   <div>
     <h2 id="why">Why this map</h2>
@@ -92,5 +100,50 @@ footer a{color:inherit}
   </div>
 </main>
 <footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
+</div>
+<div data-l="el" lang="el" hidden>
+<div class="top"><div class="bar"><a class="back" href="index.html">← Πίσω στον χάρτη</a></div><h1>Πόσο μακριά φτάνεις σε 45 λεπτά;</h1></div>
+<main class="about" aria-labelledby="why-el">
+  <div>
+    <h2 id="why-el">Γιατί αυτός ο χάρτης</h2>
+    <p>Το αν μια δουλειά, ένα σχολείο ή ένα νοσοκομείο είναι «κοντά» εξαρτάται από το πώς μετακινείσαι. Στην Αθήνα, δύο άνθρωποι που μένουν λίγα στενά μακριά μπορεί να έχουν πολύ διαφορετική πόλη στη διάθεσή τους, ανάλογα με το πόσο κοντά είναι σε σταθμό του μετρό ή σε μια συχνή γραμμή λεωφορείου. Ο χάρτης το δείχνει αυτό δρόμο προς δρόμο, από όποιο σημείο διαλέξεις.</p>
+    <ul class="aims">
+      <li><b>Να δείξει πόσο προσβάσιμη είναι η πόλη με τα ΜΜΜ</b>Πόσο μέρος της Αθήνας φέρνουν σε απόσταση 15, 30 ή 45 λεπτών τα λεωφορεία, τα τρόλεϊ, το μετρό, το τραμ και ο Προαστιακός, ώστε το δίκτυο να κρίνεται από το πού σε πηγαίνει.</li>
+      <li><b>Να εντοπίσει τις περιοχές που τα ΜΜΜ εξυπηρετούν άσχημα</b>Γειτονιές όπου τα ΜΜΜ προσθέτουν λίγα σε σχέση με το περπάτημα ή όπου το αυτοκίνητο είναι πολύ πιο γρήγορο. Οι προβολές «Τι είναι πιο γρήγορο» και «ΜΜΜ ανά μέσο» βοηθούν να τις βρεις. Δοκίμασε και την επιλογή «Νύχτα»: αφού κλείσουν μετρό και τραμ γύρω στις 00:30, κυκλοφορούν μόνο λίγα νυχτερινά λεωφορεία.</li>
+      <li><b>Να βάλει την κυκλοφοριακή συμφόρηση σε πλαίσιο</b>Η καθημερινή κίνηση στην Αθήνα είναι μόνιμο θέμα συζήτησης. Η σύγκριση των χρόνων από πόρτα σε πόρτα, μαζί με το ψάξιμο για θέση στάθμευσης, δείχνει πού τα ΜΜΜ ήδη ανταγωνίζονται το αυτοκίνητο και πού όχι ακόμη.</li>
+      <li><b>Να μείνει ανοιχτό</b>Ο κώδικας και η επεξεργασία των δεδομένων είναι ανοιχτού κώδικα, ώστε ο καθένας να ελέγξει τη μέθοδο, να την ξανατρέξει με νέα δρομολόγια ή να την προσαρμόσει σε άλλη πόλη.</li>
+    </ul>
+    <p style="margin-top:16px" class="no">Πρόκειται για σχεδιαστικό εργαλείο, όχι για σχεδιαστή διαδρομών: τα ΜΜΜ βασίζονται στα προγραμματισμένα δρομολόγια και οι χρόνοι με αυτοκίνητο προέρχονται από μοντέλο κυκλοφορίας, όχι από ζωντανά δεδομένα.</p>
+  </div>
+  <div class="who">
+    <h2>Ποιος το έφτιαξε</h2>
+    <p class="name">Δρ Ιωάννης Τσούρος</p>
+    <p class="role">Ερευνητής μεταφορών. Lead Scientist και συνιδρυτής της MobyX και εξωτερικός επιστημονικός συνεργάτης του Εργαστηρίου Μεταφορών και Λήψης Αποφάσεων του Πανεπιστημίου Αιγαίου.</p>
+    <p>Η δουλειά μου αφορά το πώς μετακινούνται οι άνθρωποι και πώς οι πολιτικές μπορούν να το αλλάξουν: μετακινησιακή συμπεριφορά, νέες υπηρεσίες κινητικότητας, δεδομένα κινητικότητας και ισότητα στις μεταφορές.</p>
+    <ul class="links">
+      <li><a href="https://www.jtsouros.site/">Ιστότοπος</a></li>
+      <li><a href="https://github.com/acesonic7">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
+      <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
+    </ul>
+    <p>Πηγαίος κώδικας, επεξεργασία δεδομένων και αναφορές προβλημάτων: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Διορθώσεις και ιδέες είναι ευπρόσδεκτες εκεί.</p>
+  </div>
+</main>
+<footer class="foot"><p><b>Ιωάννης Τσούρος</b> · <a href="https://www.jtsouros.site/">Ιστότοπος</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Πηγαίος κώδικας</a></p><p class="small">Δεδομένα χάρτη © <a href="https://www.openstreetmap.org/copyright">συντελεστές OpenStreetMap</a> · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train</p></footer>
+</div>
+<script>
+{
+const q = new URLSearchParams(location.search).get('lang');
+let L = ['el','en'].includes(q) ? q : (localStorage.getItem('lang') || ((navigator.languages || [navigator.language]).some(l => /^el\b/i.test(l)) ? 'el' : 'en'));
+const b = document.getElementById('lang');
+function apply(){
+  document.querySelectorAll('[data-l]').forEach(d => d.hidden = d.dataset.l !== L);
+  document.documentElement.lang = L; document.title = L === 'el' ? 'Σχετικά · Αθήνα: πόσο μακριά φτάνεις με ΜΜΜ' : 'About · Athens transit reach';
+  b.textContent = L === 'el' ? 'EN' : 'ΕΛ'; b.lang = L === 'el' ? 'en' : 'el'; b.setAttribute('aria-label', L === 'el' ? 'English' : 'Ελληνικά');
+}
+b.addEventListener('click', () => {L = L === 'el' ? 'en' : 'el'; localStorage.setItem('lang', L); apply()});
+apply();
+}
+</script>
 </body>
 </html>
