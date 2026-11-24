@@ -55,6 +55,7 @@ h1{font-size:clamp(28px,3.6vw,42px);line-height:1.05;margin:22px 0 0;font-weight
 .aims li{padding-left:14px;border-left:3px solid var(--c0)}
 .aims li:nth-child(2){border-color:var(--c1)}.aims li:nth-child(3){border-color:var(--c2)}.aims li:nth-child(4){border-color:var(--mute)}
 .aims b{display:block}
+.lead{font-size:clamp(18px,1.6vw,21px);font-weight:600;line-height:1.4}
 .who .name{font-size:20px;font-weight:800;margin:0}
 .who .role{color:var(--mute);margin:2px 0 14px}
 .links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
@@ -76,81 +77,89 @@ footer a{color:inherit}
 <div class="top"><div class="bar"><a class="back" href="index.html">← Back to the map</a></div><h1>How far can you reach in 45 minutes?</h1></div>
 <main class="about" aria-labelledby="why">
   <div>
-    <h2 id="why">Why this map</h2>
-    <p>Whether a job, a school or a hospital is “close” depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This map makes that visible street by street, from any point you choose.</p>
+    <h2 id="why">Why this map?</h2>
+    <p class="lead">Living in the same city does not necessarily mean having access to the same opportunities.</p>
+    <p>In Athens, two people living just a few streets apart may have very different parts of the city within reach. Proximity to a metro station, a frequent bus service or a well-connected transport interchange can make a significant difference to their everyday lives. So can whether they have a car available, can afford to run one, or are able to drive at all. For many people, including children and older people, those on lower incomes and people with disabilities, public transport and walking are the only options.</p>
+    <p>This interactive map explores transport accessibility: how much of the city you can reach within a given amount of time, depending on where you start, when you travel and which means of transport you use.</p>
+    <p>The map aims to:</p>
     <ul class="aims">
-      <li><b>Show how accessible the city is by public transport</b>How much of Athens buses, trolleys, metro, tram and suburban rail put within 15, 30 or 45 minutes, so the network can be judged by what it lets people reach.</li>
-      <li><b>Find the areas public transport serves poorly</b>Neighbourhoods where transit adds little over walking, or where the car is far quicker. The “Which is faster” and “Transit by mode” views help spot them. Try the Night preset too: after the metro and tram close around 00:30, only a handful of night buses run.</li>
-      <li><b>Put traffic congestion in context</b>Athens' daily congestion is a constant topic. Comparing door-to-door times, including the hunt for a parking space, shows where transit already competes with the car and where it does not yet.</li>
-      <li><b>Keep it open</b>The code and data pipeline are open source, so anyone can check the method, rerun it with new timetables, or adapt it to another city.</li>
+      <li><b>Make public transport accessibility visible.</b>Explore which parts of Athens you can reach within 15, 30 or 45 minutes using buses, trolleybuses, metro, tram and suburban rail.</li>
+      <li><b>Reveal spatial inequalities.</b>Identify neighbourhoods where public transport offers limited accessibility, where walking is equally effective, or where travelling by car provides a substantial advantage. Explore how accessibility changes throughout the day and night.</li>
+      <li><b>Put traffic congestion into perspective.</b>Athens’ traffic congestion is a recurring subject of public debate. Comparing door-to-door travel times, including the time spent finding a parking space, helps illustrate where public transport already offers a competitive alternative to the car and where improvements are needed.</li>
+      <li><b>Encourage an open and informed discussion.</b>The source code and data-processing pipeline are openly available, allowing anyone to examine the methodology, update the analysis with new timetables or adapt it to another city.</li>
     </ul>
-    <p style="margin-top:16px" class="no">A planning sketch, not a journey planner: transit uses scheduled times, and car times come from a traffic model rather than live data.</p>
+    <p style="margin-top:16px">Ultimately, a city’s transport system should be evaluated not only by how quickly it moves people, but also by the places and opportunities it enables them to reach.</p>
+    <p class="no"><b>A tool for exploration, not a journey planner.</b> Public transport estimates are based on scheduled services, while car travel times are derived from a traffic model rather than real-time traffic conditions. Actual travel times may vary.</p>
   </div>
   <div class="who">
-    <h2>Who made it</h2>
+    <h2>Who made it?</h2>
     <p class="name">Dr Ioannis Tsouros</p>
-    <p class="role">Transportation researcher. Lead Scientist and co-founder of MobyX, and external scientist at the Transportation and Decision-Making Laboratory, University of the Aegean.</p>
-    <p>My work is on how people travel and how policy can change it: travel behaviour, new mobility services, mobility data and transport equity.</p>
+    <p class="role">Transport researcher, Lead Scientist and co-founder of MobyX, and external researcher at the Transportation and Decision-Making Laboratory, University of the Aegean.</p>
+    <p>My research focuses on understanding how people travel and how transport policy can influence everyday mobility, with a particular interest in travel behaviour, emerging mobility services, mobility data, accessibility and transport equity.</p>
     <ul class="links">
       <li><a href="https://www.jtsouros.site/">Website</a></li>
       <li><a href="https://github.com/acesonic7">GitHub</a></li>
       <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
       <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
     </ul>
-    <p>Source code, data pipeline and issues: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Corrections and ideas are welcome there.</p>
+    <p>The project’s source code and data-processing pipeline are available on <a href="https://github.com/acesonic7/AthensPTComparisonMaps">GitHub</a>. Feedback, corrections and contributions are welcome.</p>
   </div>
 </main>
 <section class="priv" aria-labelledby="priv-en">
   <h2 id="priv-en">Privacy</h2>
-  <p>The map runs entirely in your browser. Routes are calculated on your device, and nothing you click on is sent anywhere.</p>
+  <p>The map’s routing calculations take place directly in your browser. Your interactions with the map are not transmitted to a remote server for processing.</p>
   <ul>
-    <li><b>Your location.</b> “Use my location” asks your browser for permission first. The position is used only on your device, to set the start, and is never sent to the site.</li>
-    <li><b>No cookies, no analytics, no accounts.</b> The site stores one thing on your device: your language, and only if you pick it with the ΕΛ/EN switch.</li>
-    <li><b>Share links</b> contain the start and destination rounded to about 100 m, plus the time and view. Anyone you send a link to can see them.</li>
-    <li><b>Hosting.</b> The site is hosted by Vercel, whose servers keep standard request logs (such as IP address and the page requested) for a short time. Fonts and data come from this site itself, not from third-party services.</li>
+    <li><b>Your location.</b> If you select “Use my location”, your browser will first ask for permission. Your location is used locally to set your starting point.</li>
+    <li><b>No cookies, analytics or accounts.</b> The website only stores your language preference on your device if you use the ΕΛ/EN switch.</li>
+    <li><b>Sharing links.</b> Shared links include the starting point and destination, rounded to approximately 100 metres, together with the selected time and map view. This information is visible to anyone who receives the link.</li>
+    <li><b>Hosting.</b> The website is hosted on Vercel, which may retain standard server request logs, including IP addresses and requested pages. Fonts and map data are served directly by the website rather than external services.</li>
   </ul>
 </section>
 <footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
 </div>
 <div data-l="el" lang="el" hidden>
-<div class="top"><div class="bar"><a class="back" href="index.html">← Πίσω στον χάρτη</a></div><h1>Πόσο μακριά φτάνεις σε 45 λεπτά;</h1></div>
+<div class="top"><div class="bar"><a class="back" href="index.html">← Πίσω στον χάρτη</a></div><h1>Πόσο μακριά μπορείς να φτάσεις σε 45 λεπτά;</h1></div>
 <main class="about" aria-labelledby="why-el">
   <div>
-    <h2 id="why-el">Γιατί αυτός ο χάρτης</h2>
-    <p>Το αν μια δουλειά, ένα σχολείο ή ένα νοσοκομείο είναι «κοντά» εξαρτάται από το πώς μετακινείσαι. Στην Αθήνα, δύο άνθρωποι που μένουν λίγα στενά μακριά μπορεί να έχουν πολύ διαφορετική πόλη στη διάθεσή τους, ανάλογα με το πόσο κοντά είναι σε σταθμό του μετρό ή σε μια συχνή γραμμή λεωφορείου. Ο χάρτης το δείχνει αυτό δρόμο προς δρόμο, από όποιο σημείο διαλέξεις.</p>
+    <h2 id="why-el">Γιατί δημιουργήθηκε αυτός ο χάρτης;</h2>
+    <p class="lead">Το ότι ζούμε στην ίδια πόλη δεν σημαίνει απαραίτητα ότι έχουμε πρόσβαση στις ίδιες ευκαιρίες.</p>
+    <p>Στην Αθήνα, δύο άνθρωποι που κατοικούν σε απόσταση λίγων δρόμων μεταξύ τους μπορεί να έχουν πρόσβαση σε πολύ διαφορετικά τμήματα της πόλης. Η απόσταση από έναν σταθμό του μετρό, μια λεωφορειακή γραμμή με συχνά δρομολόγια ή έναν συγκοινωνιακό κόμβο μπορεί να κάνει σημαντική διαφορά στην καθημερινότητά τους. Το ίδιο ισχύει για το αν έχουν διαθέσιμο αυτοκίνητο, αν μπορούν να αντέξουν το κόστος του ή αν μπορούν καν να οδηγήσουν. Για πολλούς ανθρώπους, όπως τα παιδιά και οι ηλικιωμένοι, όσοι έχουν χαμηλότερο εισόδημα και τα άτομα με αναπηρία, οι δημόσιες συγκοινωνίες και το περπάτημα είναι οι μόνες επιλογές.</p>
+    <p>Ο διαδραστικός αυτός χάρτης διερευνά την έννοια της προσβασιμότητας: σε πόσο μεγάλο μέρος της πόλης μπορούμε να φτάσουμε μέσα σε συγκεκριμένο χρόνο, ανάλογα με το σημείο εκκίνησης, την ώρα της ημέρας και το μέσο μετακίνησης που χρησιμοποιούμε.</p>
+    <p>Στόχος του χάρτη είναι:</p>
     <ul class="aims">
-      <li><b>Να δείξει πόσο προσβάσιμη είναι η πόλη με τα ΜΜΜ</b>Πόσο μέρος της Αθήνας φέρνουν σε απόσταση 15, 30 ή 45 λεπτών τα λεωφορεία, τα τρόλεϊ, το μετρό, το τραμ και ο Προαστιακός, ώστε το δίκτυο να κρίνεται από το πού σε πηγαίνει.</li>
-      <li><b>Να εντοπίσει τις περιοχές που τα ΜΜΜ εξυπηρετούν άσχημα</b>Γειτονιές όπου τα ΜΜΜ προσθέτουν λίγα σε σχέση με το περπάτημα ή όπου το αυτοκίνητο είναι πολύ πιο γρήγορο. Οι προβολές «Τι είναι πιο γρήγορο» και «ΜΜΜ ανά μέσο» βοηθούν να τις βρεις. Δοκίμασε και την επιλογή «Νύχτα»: αφού κλείσουν μετρό και τραμ γύρω στις 00:30, κυκλοφορούν μόνο λίγα νυχτερινά λεωφορεία.</li>
-      <li><b>Να βάλει την κυκλοφοριακή συμφόρηση σε πλαίσιο</b>Η καθημερινή κίνηση στην Αθήνα είναι μόνιμο θέμα συζήτησης. Η σύγκριση των χρόνων από πόρτα σε πόρτα, μαζί με το ψάξιμο για θέση στάθμευσης, δείχνει πού τα ΜΜΜ ήδη ανταγωνίζονται το αυτοκίνητο και πού όχι ακόμη.</li>
-      <li><b>Να μείνει ανοιχτό</b>Ο κώδικας και η επεξεργασία των δεδομένων είναι ανοιχτού κώδικα, ώστε ο καθένας να ελέγξει τη μέθοδο, να την ξανατρέξει με νέα δρομολόγια ή να την προσαρμόσει σε άλλη πόλη.</li>
+      <li><b>Να αποτυπώσει την προσβασιμότητα που προσφέρουν οι δημόσιες συγκοινωνίες.</b>Δες σε ποιες περιοχές της Αθήνας μπορείς να φτάσεις μέσα σε 15, 30 ή 45 λεπτά, χρησιμοποιώντας λεωφορεία, τρόλεϊ, μετρό, τραμ και προαστιακό.</li>
+      <li><b>Να αναδείξει τις χωρικές ανισότητες.</b>Εντόπισε γειτονιές στις οποίες οι δημόσιες συγκοινωνίες προσφέρουν περιορισμένες δυνατότητες μετακίνησης, όπου το περπάτημα είναι εξίσου αποτελεσματικό ή όπου το αυτοκίνητο προσφέρει σημαντικό πλεονέκτημα. Δες επίσης πώς αλλάζει η προσβασιμότητα κατά τη διάρκεια της ημέρας και της νύχτας.</li>
+      <li><b>Να συμβάλει στη συζήτηση για το κυκλοφοριακό πρόβλημα.</b>Η κυκλοφοριακή συμφόρηση αποτελεί ένα από τα σημαντικότερα ζητήματα της καθημερινότητας στην Αθήνα. Η σύγκριση του συνολικού χρόνου μετακίνησης από πόρτα σε πόρτα, συμπεριλαμβανομένου του χρόνου αναζήτησης θέσης στάθμευσης, μας βοηθά να κατανοήσουμε πού οι δημόσιες συγκοινωνίες αποτελούν ήδη μια ανταγωνιστική εναλλακτική στο αυτοκίνητο και πού χρειάζονται βελτιώσεις.</li>
+      <li><b>Να ενισχύσει τον ανοιχτό και τεκμηριωμένο δημόσιο διάλογο.</b>Ο πηγαίος κώδικας και η διαδικασία επεξεργασίας των δεδομένων είναι ελεύθερα διαθέσιμα, ώστε οποιοσδήποτε να μπορεί να εξετάσει τη μεθοδολογία, να επικαιροποιήσει την ανάλυση με νέα δρομολόγια ή να την εφαρμόσει σε μια άλλη πόλη.</li>
     </ul>
-    <p style="margin-top:16px" class="no">Πρόκειται για σχεδιαστικό εργαλείο, όχι για σχεδιαστή διαδρομών: τα ΜΜΜ βασίζονται στα προγραμματισμένα δρομολόγια και οι χρόνοι με αυτοκίνητο προέρχονται από μοντέλο κυκλοφορίας, όχι από ζωντανά δεδομένα.</p>
+    <p style="margin-top:16px">Άλλωστε, ένα σύστημα μεταφορών δεν πρέπει να αξιολογείται μόνο με βάση το πόσο γρήγορα μετακινούνται οι άνθρωποι, αλλά και με βάση τους τόπους, τις δραστηριότητες και τις ευκαιρίες στις οποίες τους επιτρέπει να έχουν πρόσβαση.</p>
+    <p class="no"><b>Ένα εργαλείο διερεύνησης, όχι μια εφαρμογή πλοήγησης.</b> Οι χρόνοι μετακίνησης με τις δημόσιες συγκοινωνίες υπολογίζονται βάσει των προγραμματισμένων δρομολογίων, ενώ οι χρόνοι μετακίνησης με αυτοκίνητο προκύπτουν από μοντέλο κυκλοφορίας και όχι από δεδομένα πραγματικού χρόνου. Οι πραγματικοί χρόνοι μετακίνησης ενδέχεται να διαφέρουν.</p>
   </div>
   <div class="who">
-    <h2>Ποιος το έφτιαξε</h2>
-    <p class="name">Δρ Ιωάννης Τσούρος</p>
-    <p class="role">Ερευνητής μεταφορών. Lead Scientist και συνιδρυτής της MobyX και εξωτερικός επιστημονικός συνεργάτης του Εργαστηρίου Μεταφορών και Λήψης Αποφάσεων του Πανεπιστημίου Αιγαίου.</p>
-    <p>Η δουλειά μου αφορά το πώς μετακινούνται οι άνθρωποι και πώς οι πολιτικές μπορούν να το αλλάξουν: μετακινησιακή συμπεριφορά, νέες υπηρεσίες κινητικότητας, δεδομένα κινητικότητας και ισότητα στις μεταφορές.</p>
+    <h2>Ποιος βρίσκεται πίσω από τον χάρτη;</h2>
+    <p class="name">Δρ. Ιωάννης Τσούρος</p>
+    <p class="role">Ερευνητής στον τομέα των μεταφορών, επικεφαλής έρευνας και συνιδρυτής της MobyX και εξωτερικός ερευνητικός συνεργάτης του Εργαστηρίου Μεταφορών και Λήψης Αποφάσεων του Πανεπιστημίου Αιγαίου.</p>
+    <p>Η έρευνά μου επικεντρώνεται στην κατανόηση του τρόπου με τον οποίο μετακινούμαστε και του πώς οι πολιτικές μεταφορών μπορούν να επηρεάσουν την καθημερινότητά μας. Στα ερευνητικά μου ενδιαφέροντα περιλαμβάνονται η μεταφορική συμπεριφορά, οι νέες υπηρεσίες κινητικότητας, η αξιοποίηση δεδομένων μετακινήσεων, η προσβασιμότητα και η κοινωνική δικαιοσύνη στις μεταφορές.</p>
     <ul class="links">
-      <li><a href="https://www.jtsouros.site/">Ιστότοπος</a></li>
+      <li><a href="https://www.jtsouros.site/">Προσωπική ιστοσελίδα</a></li>
       <li><a href="https://github.com/acesonic7">GitHub</a></li>
       <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
       <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
     </ul>
-    <p>Πηγαίος κώδικας, επεξεργασία δεδομένων και αναφορές προβλημάτων: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Διορθώσεις και ιδέες είναι ευπρόσδεκτες εκεί.</p>
+    <p>Ο πηγαίος κώδικας του έργου και η διαδικασία επεξεργασίας των δεδομένων είναι διαθέσιμα στο <a href="https://github.com/acesonic7/AthensPTComparisonMaps">GitHub</a>. Σχόλια, διορθώσεις, προτάσεις και συνεισφορές είναι ευπρόσδεκτα.</p>
   </div>
 </main>
 <section class="priv" aria-labelledby="priv-el">
-  <h2 id="priv-el">Ιδιωτικότητα</h2>
-  <p>Ο χάρτης λειτουργεί εξ ολοκλήρου στο πρόγραμμα περιήγησής σου. Οι διαδρομές υπολογίζονται στη συσκευή σου και τίποτα από όσα πατάς δεν στέλνεται πουθενά.</p>
+  <h2 id="priv-el">Προστασία προσωπικών δεδομένων</h2>
+  <p>Οι υπολογισμοί των διαδρομών πραγματοποιούνται απευθείας στο πρόγραμμα περιήγησής σου. Οι επιλογές που κάνεις στον χάρτη δεν αποστέλλονται σε απομακρυσμένο διακομιστή για επεξεργασία.</p>
   <ul>
-    <li><b>Η τοποθεσία σου.</b> Η «Τοποθεσία μου» ζητά πρώτα άδεια από το πρόγραμμα περιήγησης. Η θέση χρησιμοποιείται μόνο στη συσκευή σου, για να οριστεί η αφετηρία, και δεν στέλνεται ποτέ στον ιστότοπο.</li>
-    <li><b>Χωρίς cookies, χωρίς στατιστικά επισκεψιμότητας, χωρίς λογαριασμούς.</b> Ο ιστότοπος αποθηκεύει ένα μόνο πράγμα στη συσκευή σου: τη γλώσσα, και μόνο αν τη διαλέξεις με το κουμπί ΕΛ/EN.</li>
-    <li><b>Οι σύνδεσμοι κοινοποίησης</b> περιέχουν την αφετηρία και τον προορισμό στρογγυλεμένα στα 100 μ. περίπου, μαζί με την ώρα και την προβολή. Όποιος λάβει τον σύνδεσμο μπορεί να τα δει.</li>
-    <li><b>Φιλοξενία.</b> Ο ιστότοπος φιλοξενείται από τη Vercel, οι διακομιστές της οποίας κρατούν για λίγο τυπικά αρχεία καταγραφής αιτημάτων (όπως διεύθυνση IP και σελίδα που ζητήθηκε). Οι γραμματοσειρές και τα δεδομένα έρχονται από τον ίδιο τον ιστότοπο, όχι από υπηρεσίες τρίτων.</li>
+    <li><b>Η τοποθεσία σου.</b> Εάν επιλέξεις «Χρήση της τοποθεσίας μου», το πρόγραμμα περιήγησης θα ζητήσει πρώτα την άδειά σου. Η τοποθεσία χρησιμοποιείται μόνο στη συσκευή σου για τον καθορισμό του σημείου εκκίνησης.</li>
+    <li><b>Χωρίς cookies, εργαλεία παρακολούθησης ή λογαριασμούς χρηστών.</b> Η μοναδική πληροφορία που αποθηκεύει η ιστοσελίδα στη συσκευή σου είναι η προτίμηση γλώσσας, εφόσον χρησιμοποιήσεις την επιλογή ΕΛ/EN.</li>
+    <li><b>Κοινοποίηση συνδέσμων.</b> Οι σύνδεσμοι κοινοποίησης περιλαμβάνουν το σημείο εκκίνησης και τον προορισμό με ακρίβεια περίπου 100 μέτρων, καθώς και την επιλεγμένη ώρα και προβολή του χάρτη. Οι πληροφορίες αυτές είναι ορατές σε όποιον λαμβάνει τον σύνδεσμο.</li>
+    <li><b>Φιλοξενία ιστοσελίδας.</b> Η ιστοσελίδα φιλοξενείται στην πλατφόρμα Vercel, η οποία ενδέχεται να διατηρεί τυπικά αρχεία καταγραφής αιτημάτων, όπως τη διεύθυνση IP και τη σελίδα που ζητήθηκε. Οι γραμματοσειρές και τα δεδομένα του χάρτη παρέχονται από την ίδια την ιστοσελίδα και όχι από υπηρεσίες τρίτων.</li>
   </ul>
 </section>
-<footer class="foot"><p><b>Ιωάννης Τσούρος</b> · <a href="https://www.jtsouros.site/">Ιστότοπος</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Πηγαίος κώδικας</a></p><p class="small">Δεδομένα χάρτη © <a href="https://www.openstreetmap.org/copyright">συντελεστές OpenStreetMap</a> · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train</p></footer>
+<footer class="foot"><p><b>Ιωάννης Τσούρος</b> · <a href="https://www.jtsouros.site/">Ιστότοπος</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Πηγαίος κώδικας</a></p><p class="small">Χαρτογραφικά δεδομένα © <a href="https://www.openstreetmap.org/copyright">Συνεισφέροντες OpenStreetMap</a> · Δρομολόγια: ΟΑΣΑ, ΣΤΑΣΥ, Hellenic Train</p></footer>
 </div>
 <script>
 {
