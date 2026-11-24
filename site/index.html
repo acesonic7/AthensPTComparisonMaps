@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Athens transit reach</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a transport planner's plate — exact, calm, one moving thing.
+   IDEA: the city's own street grid as the map; travel time spreads through it like ink.
+   PICTURE: full-width canvas of every street in the Athens basin, lighting up minute by minute, transit beside car.
+   COLOUR and TYPE: paper white / night ink; ultramarine → magenta → orange for 0–15–30–45 min; Commissioner.
+   LAYOUT: thin control bar, map(s) dominant, comparison numbers and places beneath. */
+:root{color-scheme:light dark;--bg:light-dark(#fdfdfc,#0f1115);--ink:light-dark(#15161a,#eceef2);--mute:light-dark(#62656d,#9095a0);
+--street:light-dark(#d6d7da,#2a2d34);--line:light-dark(#e4e5e8,#262930);--panel:light-dark(#f3f4f6,#171a20);--c0:#1d2bd8;--c1:#e0218a;--c2:#ff7a1a;--car:#e8590c}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Commissioner,system-ui,sans-serif;overflow-x:clip}
+header{padding:20px max(3vw,16px) 12px;display:grid;gap:14px}
+h1{font-size:clamp(26px,3.4vw,40px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
+.sub{color:var(--mute);margin:6px 0 0;font-size:15px}
+.ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-wrap:wrap}
+.seg button{border:0;border-right:1px solid var(--line);border-radius:0}.seg button:last-child{border-right:0}
+button,select{font:600 15px Commissioner,system-ui,sans-serif;min-height:44px;padding:0 14px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer}
+button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
+label.f{display:flex;align-items:center;gap:6px;color:var(--mute);font-size:14px}
+.maps{display:grid;grid-template-columns:minmax(0,1fr);border-block:1px solid var(--line);touch-action:none;cursor:crosshair}
+.maps.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+.pane{position:relative;height:min(72vh,800px);min-height:420px}
+.maps.two .pane+.pane{border-left:1px solid var(--line)}
+.pane canvas{position:absolute;inset:0;width:100%;height:100%}
+.clock{position:absolute;left:16px;top:14px;pointer-events:none}
+.clock em{display:block;font-style:normal;font-weight:600;font-size:15px}
+.clock b{display:block;font-size:clamp(30px,4.5vw,52px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.clock span{color:var(--mute);font-size:14px}
+.legend{position:absolute;left:16px;bottom:14px;width:min(320px,62%);pointer-events:none;font-size:13px;color:var(--mute)}
+.ramp{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--c0),var(--c1),var(--c2))}
+.ramp.div{background:linear-gradient(90deg,#1d2bd8,#7d8ce8,#b3aca6,#f6a26b,#e8590c)}
+.ticks{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;margin-top:3px}
+.zoom{position:absolute;right:12px;top:12px;display:flex;flex-direction:column;gap:6px}
+.zoom button{width:44px;padding:0;font-size:20px}
+.status{position:absolute;inset:0;display:grid;place-items:center;color:var(--mute);pointer-events:none}
+.below{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(20px,3vw,48px);padding:24px max(3vw,16px) 40px}
+h2{font-size:17px;margin:0 0 10px}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+th:first-child,td:first-child{text-align:left}
+th{font-size:13px;color:var(--mute);font-weight:600}
+td.win{font-weight:800}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:baseline}
+.bar{height:8px;border-radius:4px;margin-top:3px}
+.no{color:var(--mute)}
+.note{font-size:13px;color:var(--mute);margin-top:16px;max-width:75ch}
+details{margin-top:14px;font-size:14px;max-width:75ch}
+summary{cursor:pointer;font-weight:600;min-height:32px}
+details td,details th{font-size:13px;padding:3px 6px}
+@media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
+@media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1 id="title">How far does public transport take you in 45 minutes?</h1>
+    <p class="sub">Click anywhere on the map to start there. Walking + bus, trolley, metro, tram and suburban rail, compared with driving in modelled traffic.</p>
+  </div>
+  <div class="ctl">
+    <div class="seg" role="group" aria-label="View">
+      <button data-v="pt" aria-pressed="true">Transit</button><button data-v="car">Car</button><button data-v="both">Side by side</button><button data-v="diff">Which is faster</button>
+    </div>
+    <div class="seg" role="group" aria-label="Time budget">
+      <button data-b="15">15 min</button><button data-b="30">30 min</button><button data-b="45" aria-pressed="true">45 min</button>
+    </div>
+    <label class="f">Leave at <select id="dep"></select></label>
+    <label class="f">Traffic <select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
+    <label class="f">Car parking <select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
+    <button id="play">Replay</button>
+  </div>
+</header>
+<div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
+<section class="below">
+  <div>
+    <h2>Streets within reach</h2>
+    <table id="bands"></table>
+    <p class="note" id="note"></p>
+    <details><summary>How car travel times are modelled</summary>
+      <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that peaks around 08:00–09:00 and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
+      <table id="carmodel"></table>
+      <p>With parking on, a trip adds 2 min to reach the car, plus time to find a space and walk to the door: 12 min within 2 km of Syntagma, 8 min within 4 km, 5 min within 8 km, 2 min further out.</p>
+    </details>
+  </div>
+  <div>
+    <h2>Travel time to places</h2>
+    <table id="places"></table>
+  </div>
+</section>
+<script>
+{
+const WALK = 1.33, BOARD = 60, LIM = 45*60, SIM_MIN_MS = 190;
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const hm = s => String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0');
+// car model: class 0 motorway,1 trunk,2 primary,3 secondary,4 tertiary,5 residential,6 living street,7 pedestrian
+const CLASS = ['Motorway','Trunk road','Primary','Secondary','Tertiary','Residential','Living street'];
+const FREE_KMH = [95, 65, 45, 38, 32, 25, 12, 0];
+const PEAK_MULT = [1.7, 1.8, 1.8, 1.7, 1.5, 1.3, 1.1, 1];
+const JUNC_S = [0, 4, 6, 5, 4, 2, 1, 0];
+const PROFILE = [[6.5,.25],[7,.5],[7.5,.85],[8,1],[8.75,1],[9.25,.85],[10,.6],[11,.5]];
+let net, pt, meta, adjOff, adjE, origin = {x:0, y:0, label:'Syntagma'}, dep = 8*3600, budget = 45, viewMode = 'pt';
+let res = null, view = {cx:0, cy:2000, s:0.05}, anim = {t:0, start:0, raf:0}, railStops = [];
+
+async function load(){
+  const bin = u => fetch(u).then(r=>r.json()).then(b=>Uint8Array.from(atob(b), c=>c.charCodeAt(0)).buffer);
+  const [nb, pb, mj] = await Promise.all([bin('data/net.b64.json'), bin('data/pt.b64.json'), fetch('data/meta.json').then(r=>r.json())]);
+  meta = mj;
+  let h = new Uint32Array(nb, 0, 3), o = 12; const [N, E, P] = h;
+  net = {N, E, xy:new Float32Array(nb, o, 2*N)}; o += 8*N;
+  net.u = new Uint32Array(nb, o, E); o += 4*E; net.v = new Uint32Array(nb, o, E); o += 4*E;
+  net.len = new Float32Array(nb, o, E); o += 4*E; net.off = new Uint32Array(nb, o, E+1); o += 4*(E+1);
+  net.pts = new Float32Array(nb, o, 2*P); o += 8*P;
+  net.cls = new Uint8Array(nb, o, E); o += E; net.flag = new Uint8Array(nb, o, E);
+  h = new Uint32Array(pb, 0, 4); o = 16; const [S, C, TR, F] = h;
+  pt = {S, C, TR, xy:new Float32Array(pb, o, 2*S)}; o += 8*S;
+  pt.node = new Uint32Array(pb, o, S); o += 4*S; pt.snap = new Float32Array(pb, o, S); o += 4*S;
+  pt.a = new Uint32Array(pb, o, C); o += 4*C; pt.b = new Uint32Array(pb, o, C); o += 4*C; pt.trip = new Uint32Array(pb, o, C); o += 4*C;
+  pt.td = new Uint16Array(pb, o, C); o += 2*C; pt.ta = new Uint16Array(pb, o, C); o += 2*C;
+  pt.mode = new Uint8Array(pb, o, TR); o += TR; o += (4 - TR % 4) % 4;
+  pt.foff = new Uint32Array(pb, o, S+1); o += 4*(S+1); pt.fto = new Uint32Array(pb, o, F); o += 4*F; pt.fd = new Float32Array(pb, o, F);
+  const deg = new Uint32Array(N+1);
+  for (let e=0;e<E;e++){deg[net.u[e]+1]++;deg[net.v[e]+1]++}
+  for (let i=0;i<N;i++) deg[i+1]+=deg[i];
+  adjOff = deg.slice(); adjE = new Uint32Array(2*E); const fill = deg.slice();
+  for (let e=0;e<E;e++){adjE[fill[net.u[e]]++]=e;adjE[fill[net.v[e]]++]=e}
+  for (let t=meta.tMin; t<=meta.tMax-45*60; t+=15*60){const op=document.createElement('option');op.value=t;op.textContent=hm(t);if(t===dep)op.selected=true;$('dep').append(op)}
+  const rs = new Set(); for (let c=0;c<C;c++) if (pt.mode[pt.trip[c]]>=2){rs.add(pt.a[c]);rs.add(pt.b[c])} railStops=[...rs];
+}
+
+// ---------- routing ----------
+function Heap(){let k=new Float64Array(1<<16),v=new Int32Array(1<<16),n=0;
+  return {get size(){return n},push(key,val){if(n===k.length){const k2=new Float64Array(n*2),v2=new Int32Array(n*2);k2.set(k);v2.set(v);k=k2;v=v2}
+    let i=n++;while(i>0){const p=(i-1)>>1;if(k[p]<=key)break;k[i]=k[p];v[i]=v[p];i=p}k[i]=key;v[i]=val},
+  pop(){const top=v[0],tk=k[0];n--;if(n>0){const key=k[n],val=v[n];let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&k[c+1]<k[c])c++;if(k[c]>=key)break;k[i]=k[c];v[i]=v[c];i=c}k[i]=key;v[i]=val}return [tk,top]}}}
+// generic Dijkstra; cost(e, forward) returns seconds or Infinity
+function dijkstra(seeds, limit, cost){
+  const t = new Float64Array(net.N).fill(Infinity), h = Heap();
+  for (const [n, s] of seeds) if (s < t[n]) {t[n]=s; h.push(s, n)}
+  while (h.size){const [d, n] = h.pop(); if (d > t[n] || d > limit) continue;
+    for (let j=adjOff[n]; j<adjOff[n+1]; j++){const e=adjE[j], fwd = net.u[e]===n, c = cost(e, fwd); if (c===Infinity) continue;
+      const m = fwd ? net.v[e] : net.u[e], nd = d + c; if (nd < t[m] && nd <= limit){t[m]=nd; h.push(nd, m)}}}
+  return t;
+}
+const walkCost = e => (net.flag[e] & 1) ? net.len[e]/WALK : Infinity;
+function nearestNode(x, y, mask){let best=0,bd=Infinity;const xy=net.xy;for(let i=0;i<net.N;i++){if(mask&&!mask[i])continue;const dx=xy[2*i]-x,dy=xy[2*i+1]-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=i}}return [best,Math.sqrt(bd)]}
+let walkMask, carMask;
+function masks(){walkMask=new Uint8Array(net.N);carMask=new Uint8Array(net.N);
+  for (let e=0;e<net.E;e++){if(net.flag[e]&1){walkMask[net.u[e]]=walkMask[net.v[e]]=1}if(net.flag[e]&6){carMask[net.u[e]]=carMask[net.v[e]]=1}}}
+function routePT(){
+  const [o, od] = nearestNode(origin.x, origin.y, walkMask), t0 = od/WALK;
+  const walkOnly = dijkstra([[o, t0]], LIM, walkCost);
+  const arr = new Float64Array(pt.S).fill(Infinity), onTrip = new Uint8Array(pt.TR), rel = dep - meta.tMin;
+  for (let s=0;s<pt.S;s++){if (pt.snap[s] > 400) continue; const w = walkOnly[pt.node[s]]; if (w < Infinity) arr[s] = rel + w + pt.snap[s]/WALK}
+  let lo=0, hi=pt.C; while(lo<hi){const m=(lo+hi)>>1; if(pt.td[m] < rel) lo=m+1; else hi=m}
+  for (let c=lo; c<pt.C; c++){const td = pt.td[c]; if (td > rel + LIM) break;
+    const tr = pt.trip[c];
+    if (!onTrip[tr]){ if (arr[pt.a[c]] + BOARD > td) continue; onTrip[tr] = 1 }
+    const b = pt.b[c], ta = pt.ta[c];
+    if (ta < arr[b]){arr[b] = ta; for (let f=pt.foff[b]; f<pt.foff[b+1]; f++){const j=pt.fto[f], tj = ta + pt.fd[f]/WALK; if (tj < arr[j]) arr[j] = tj}}}
+  const seeds = [[o, t0]];
+  for (let s=0;s<pt.S;s++) if (pt.snap[s] <= 400 && arr[s] - rel < LIM) seeds.push([pt.node[s], arr[s] - rel + pt.snap[s]/WALK]);
+  return {T: dijkstra(seeds, LIM, walkCost), walkOnly};
+}
+function congestion(){const tr=$('traffic').value; if (tr==='free') return 0;
+  const h=(dep+15*60)/3600; let p=PROFILE[PROFILE.length-1][1];
+  for (let i=0;i<PROFILE.length-1;i++){const [h0,p0]=PROFILE[i],[h1,p1]=PROFILE[i+1]; if(h>=h0&&h<=h1){p=p0+(p1-p0)*(h-h0)/(h1-h0);break}}
+  if (h<PROFILE[0][0]) p=PROFILE[0][1];
+  return tr==='heavy' ? Math.min(1.4, p*1.3+0.15) : p;
+}
+function parkPenalty(x, y){const r=Math.hypot(x, y); return r<2000?720:r<4000?480:r<8000?300:120}
+function routeCar(){
+  const p = congestion(), park = $('park').value==='1';
+  const mult = PEAK_MULT.map(m => 1 + (m-1)*p);
+  const cost = (e, fwd) => {const f=net.flag[e]; if (!(f & (fwd?2:4))) return Infinity; const c=net.cls[e];
+    const x=net.xy[2*net.u[e]], y=net.xy[2*net.u[e]+1], core = x*x+y*y < 2500*2500 ? 1.15 : 1;
+    return (net.len[e]/(FREE_KMH[c]/3.6) + JUNC_S[c]) * mult[c] * core};
+  const [o, od] = nearestNode(origin.x, origin.y, carMask);
+  const drive = dijkstra([[o, od/WALK + (park?120:0)]], LIM, cost);
+  const T = new Float64Array(net.N);
+  for (let i=0;i<net.N;i++) T[i] = drive[i] + (park && drive[i]<Infinity ? parkPenalty(net.xy[2*i], net.xy[2*i+1]) : 0);
+  return {T, mult};
+}
+function edgeTimes(T, allowMask, wFn){
+  const t0 = new Float32Array(net.E), t1 = new Float32Array(net.E), w = new Float32Array(net.E), list = [];
+  for (let e=0;e<net.E;e++){const a=T[net.u[e]], b=T[net.v[e]]; w[e]=wFn(e)||1;
+    if (!(net.flag[e] & allowMask)){t0[e]=t1[e]=Infinity; continue}
+    t0[e]=Math.min(a,b); t1[e]=Math.min(Math.max(a,b), t0[e]+w[e]); if (t0[e] < LIM) list.push(e)}
+  const order = Uint32Array.from(list).sort((x,y)=>t0[x]-t0[y]);
+  return {T, t0, t1, w, order};
+}
+
+// ---------- palettes ----------
+const RAMP = [[29,43,216],[224,33,138],[255,122,26]];
+const timeCol = m => {const f=Math.max(0,Math.min(45,m))/22.5, i=Math.min(1,Math.floor(f)), r=f-i, a=RAMP[i], b=RAMP[i+1];
+  return `rgb(${a.map((v,k)=>Math.round(v+(b[k]-v)*r)).join(',')})`};
+const TIME_PAL = Array.from({length:45}, (_, i) => timeCol(i+0.5));
+const DIV = [[29,43,216],[125,140,232],[179,172,166],[246,162,107],[232,89,12]];
+const DIV_PAL = Array.from({length:21}, (_, i) => {const f=i/20*4, k=Math.min(3,Math.floor(f)), r=f-k, a=DIV[k], b=DIV[k+1];
+  return `rgb(${a.map((v,j)=>Math.round(v+(b[j]-v)*r)).join(',')})`});
+
+// ---------- map panes ----------
+const probe = document.createElement('i'); probe.style.display='none'; document.body.append(probe);
+const css = n => {probe.style.color = `var(${n})`; return getComputedStyle(probe).color};
+class Pane {
+  constructor(kind){
+    this.kind = kind; this.el = document.createElement('div'); this.el.className = 'pane';
+    this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span></div>
+      <div class="legend"><div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div></div>`;
+    [this.base, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
+    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster'}[kind];
+    this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span');
+  }
+  resize(){const r=this.el.getBoundingClientRect(); this.W=r.width; this.H=r.height; const D=Math.min(2,devicePixelRatio||1);
+    for (const l of [this.base,this.done,this.front]){l.c.width=this.W*D;l.c.height=this.H*D;l.x.setTransform(D,0,0,D,0,0)}}
+  X(x){return (x-view.cx)*view.s + this.W/2} Y(y){return this.H/2 - (y-view.cy)*view.s}
+  trace(c, e, fu, fv){
+    const xy=net.xy, p=net.pts, u=net.u[e], v=net.v[e], P=[[xy[2*u],xy[2*u+1]]];
+    for (let k=net.off[e]; k<net.off[e+1]; k++) P.push([p[2*k],p[2*k+1]]);
+    P.push([xy[2*v],xy[2*v+1]]);
+    if (fu + fv >= 1){c.moveTo(this.X(P[0][0]),this.Y(P[0][1])); for (let i=1;i<P.length;i++) c.lineTo(this.X(P[i][0]),this.Y(P[i][1])); return}
+    const L = net.len[e] || 1, part = (A, f) => {let rem=f*L*1.02; c.moveTo(this.X(A[0][0]),this.Y(A[0][1]));
+      for (let i=1;i<A.length && rem>0;i++){const dx=A[i][0]-A[i-1][0], dy=A[i][1]-A[i-1][1], d=Math.hypot(dx,dy)||1e-6, g=Math.min(1,rem/d);
+        c.lineTo(this.X(A[i-1][0]+dx*g),this.Y(A[i-1][1]+dy*g)); rem-=d}};
+    if (fu > 0) part(P, fu); if (fv > 0) part(P.slice().reverse(), fv);
+  }
+  lw(){return Math.max(0.6, Math.min(3, view.s*14))}
+  drawBase(){const c=this.base.x, W=this.W, H=this.H; c.clearRect(0,0,W,H); c.lineCap='round';
+    c.strokeStyle=css('--street'); c.lineWidth=Math.max(0.5,this.lw()*0.6); c.beginPath();
+    for (let e=0;e<net.E;e++){const u=net.u[e], x=this.X(net.xy[2*u]), y=this.Y(net.xy[2*u+1]); if (x<-80||y<-80||x>W+80||y>H+80) continue; this.trace(c,e,1,1)}
+    c.stroke(); c.setLineDash([6,4]);
+    for (const l of meta.lines){c.strokeStyle=l.color; c.globalAlpha=0.4; c.lineWidth=Math.max(1.5,this.lw()); c.beginPath();
+      l.pts.forEach(([x,y],i)=>i?c.lineTo(this.X(x),this.Y(y)):c.moveTo(this.X(x),this.Y(y))); c.stroke()}
+    c.setLineDash([]); c.globalAlpha=1; c.font='600 12px Commissioner,system-ui'; c.fillStyle=css('--mute'); c.textAlign='center';
+    for (const m of meta.marks) c.fillText(m.name, this.X(m.x), this.Y(m.y)-8);
+  }
+  setData(d){this.d = d; this.reset()}
+  reset(){this.ptr=0; this.active=[]; this.done.x.clearRect(0,0,this.W,this.H)}
+  stroke(c, list, sec){const d=this.d, groups=Array.from({length:d.pal.length},()=>[]);
+    for (const e of list) groups[d.bucket(e)].push(e);
+    c.lineCap='round'; c.lineWidth=this.lw()*1.15;
+    groups.forEach((g,i)=>{if(!g.length)return; c.strokeStyle=d.pal[i]; c.beginPath();
+      for (const e of g){const w=d.E.w[e]; this.trace(c,e,Math.max(0,Math.min(1,(sec-d.E.T[net.u[e]])/w)),Math.max(0,Math.min(1,(sec-d.E.T[net.v[e]])/w)))}
+      c.stroke()})}
+  frame(sec){if(!this.d)return; const E=this.d.E, lim=Math.min(sec, budget*60), newDone=[], still=[];
+    while (this.ptr < E.order.length && E.t0[E.order[this.ptr]] <= lim) this.active.push(E.order[this.ptr++]);
+    for (const e of this.active) (E.t1[e] <= lim ? newDone : still).push(e);
+    this.active = still;
+    if (newDone.length) this.stroke(this.done.x, newDone, lim);
+    const f=this.front.x; f.clearRect(0,0,this.W,this.H); this.stroke(f, this.active, lim);
+    if (this.kind==='pt'){f.lineWidth=1.5; f.strokeStyle=css('--ink'); f.fillStyle=css('--bg');
+      for (const s of railStops) if (E.T[pt.node[s]] <= lim){f.beginPath(); f.arc(this.X(pt.xy[2*s]),this.Y(pt.xy[2*s+1]),2.6,0,7); f.fill(); f.stroke()}}
+    const x=this.X(origin.x), y=this.Y(origin.y); f.fillStyle=css('--ink'); f.beginPath(); f.arc(x,y,7,0,7); f.fill(); f.fillStyle=css('--bg'); f.beginPath(); f.arc(x,y,3,0,7); f.fill();
+    this.clk.textContent = Math.floor(lim/60) + ' min'; this.clk2.textContent = hm(dep + lim) + ' · left ' + hm(dep) + ' from ' + origin.label;
+  }
+}
+let panes = [];
+function layout(){
+  const kinds = {pt:['pt'], car:['car'], both:['pt','car'], diff:['diff']}[viewMode];
+  $('maps').innerHTML=''; $('maps').classList.toggle('two', kinds.length===2);
+  panes = kinds.map(k => {const p = new Pane(k); $('maps').append(p.el);
+    const z = document.createElement('div'); z.className='zoom'; z.innerHTML='<button aria-label="Zoom in">+</button><button aria-label="Zoom out">−</button>';
+    z.querySelectorAll('button').forEach((b,i)=>{b.addEventListener('pointerdown',ev=>ev.stopPropagation()); b.addEventListener('click',ev=>{ev.stopPropagation(); zoomAt(i?1/1.5:1.5, p.W/2, p.H/2, p)})});
+    p.el.append(z); return p});
+  panes.forEach(p => p.resize()); feed(); redraw();
+}
+function feed(){if(!res)return;
+  for (const p of panes){
+    if (p.kind==='pt') p.setData({E:res.pt, pal:TIME_PAL, bucket:e=>Math.min(44,Math.floor(res.pt.t0[e]/60))});
+    if (p.kind==='car') p.setData({E:res.car, pal:TIME_PAL, bucket:e=>Math.min(44,Math.floor(res.car.t0[e]/60))});
+    if (p.kind==='diff') p.setData({E:res.best, pal:DIV_PAL, bucket:e=>{const a=res.pt.t0[e], b=res.car.t0[e];
+      const d = a===Infinity ? -10 : b===Infinity ? 10 : Math.max(-10, Math.min(10, (b-a)/60)); return Math.round(-d)+10}});
+  }}
+function redraw(){panes.forEach(p => {p.drawBase(); p.reset(); p.frame(anim.t)})}
+function play(){cancelAnimationFrame(anim.raf); panes.forEach(p=>p.reset());
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches){anim.t=budget*60; panes.forEach(p=>p.frame(anim.t)); return}
+  anim.start = performance.now();
+  const step = now => {anim.t = (now-anim.start)/SIM_MIN_MS*60; panes.forEach(p=>p.frame(anim.t)); if (anim.t < budget*60) anim.raf = requestAnimationFrame(step)};
+  anim.raf = requestAnimationFrame(step);
+}
+
+// ---------- stats ----------
+function km(T, lim, allow){let s=0;for (let e=0;e<net.E;e++){if(!(net.flag[e]&allow))continue;const a=T[net.u[e]],b=T[net.v[e]],w=net.len[e]/WALK||1;
+  s+=Math.min(1,Math.max(0,(lim-a)/w)+Math.max(0,(lim-b)/w))*net.len[e]}return s/1000}
+// best time to a place: any reached street node within 250 m, plus the walk from it
+function near(T, m, mask){let best=Infinity; const xy=net.xy;
+  for (let i=0;i<net.N;i++){if(!mask[i]||T[i]===Infinity)continue; const d=Math.hypot(xy[2*i]-m.x, xy[2*i+1]-m.y); if (d<250) best=Math.min(best, T[i]+d/WALK)}
+  return best}
+function stats(){
+  const rows=[15,30,45].map(b=>({b, p:km(res.pt.T,b*60,1), c:km(res.car.T,b*60,6), w:km(res.walk,b*60,1)}));
+  const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>Math.round(v).toLocaleString('en')+' km';
+  $('bands').innerHTML=`<tr><th>Within</th><th><span class="dot" style="background:var(--c0)"></span>Transit</th><th><span class="dot" style="background:var(--car)"></span>Car</th><th>Walk only</th></tr>`+
+    rows.map(r=>`<tr><td>${r.b} min</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
+  const tm = t => t<=LIM ? Math.round(t/60)+' min' : 'over 45';
+  $('places').innerHTML='<tr><th>Place</th><th>Transit</th><th>Car</th></tr>'+meta.marks.map(m=>({m, a:near(res.pt.T,m,walkMask), b:near(res.car.T,m,carMask)}))
+    .sort((x,y)=>Math.min(x.a,x.b)-Math.min(y.a,y.b))
+    .map(({m,a,b})=>`<tr><td>${esc(m.name)}</td><td class="${a<=b&&a<=LIM?'win':''} ${a<=LIM?'':'no'}">${tm(a)}</td><td class="${b<a&&b<=LIM?'win':''} ${b<=LIM?'':'no'}">${tm(b)}</td></tr>`).join('');
+  $('carmodel').innerHTML='<tr><th>Road type</th><th>Free flow</th><th>Now (traffic)</th></tr>'+CLASS.map((n,i)=>`<tr><td>${n}</td><td>${FREE_KMH[i]} km/h</td><td>${Math.round(FREE_KMH[i]/res.mult[i])} km/h</td></tr>`).join('');
+  $('note').textContent=`Timetables: ${meta.day}. Walking at 4.8 km/h on OSM streets, 1 min boarding buffer, transfers up to ~350 m between stops. Car: ${$('traffic').selectedOptions[0].text.toLowerCase()} traffic at ${hm(dep)}, ${$('park').value==='1'?'parking search and walk included':'door to door, no parking time'}.`;
+}
+function run(){
+  const P = routePT(), C = routeCar(), best = new Float64Array(net.N);
+  for (let i=0;i<net.N;i++) best[i]=Math.min(P.T[i], C.T[i]);
+  const mult = C.mult, carW = e => net.len[e]/(Math.max(FREE_KMH[net.cls[e]],8)/3.6)*mult[net.cls[e]];
+  res = {pt: edgeTimes(P.T, 1, e=>net.len[e]/WALK), car: edgeTimes(C.T, 6, carW), walk: P.walkOnly, mult};
+  res.best = edgeTimes(best, 7, e=>Math.min(net.len[e]/WALK, carW(e)));
+  stats(); title(); feed(); redraw(); play();
+}
+function title(){$('title').textContent = {pt:`How far does public transport take you in ${budget} minutes?`, car:`How far does a car take you in ${budget} minutes?`,
+  both:`Transit or car: how far in ${budget} minutes?`, diff:`Where is transit faster than driving, within ${budget} minutes?`}[viewMode]}
+
+// ---------- interaction ----------
+const ptrs = new Map(); let drag=null, moved=false;
+const paneAt = ev => panes.find(p => p.el.contains(ev.target)) || panes[0];
+$('maps').addEventListener('pointerdown', ev => {if(!net)return; $('maps').setPointerCapture(ev.pointerId); ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY}); moved=false;
+  drag={cx:view.cx,cy:view.cy,x:ev.clientX,y:ev.clientY,s:view.s,d:null,pane:paneAt(ev)}});
+$('maps').addEventListener('pointermove', ev => {if(!ptrs.has(ev.pointerId)||!drag)return; ptrs.set(ev.pointerId,{x:ev.clientX,y:ev.clientY});
+  if (ptrs.size===2){const [a,b]=[...ptrs.values()], d=Math.hypot(a.x-b.x,a.y-b.y); if(!drag.d)drag.d=d; view.s=Math.max(0.005,Math.min(2,drag.s*d/drag.d)); moved=true; schedule(); return}
+  const dx=ev.clientX-drag.x, dy=ev.clientY-drag.y; if (Math.hypot(dx,dy)>4) moved=true;
+  if (moved){view.cx=drag.cx-dx/view.s; view.cy=drag.cy+dy/view.s; schedule()}});
+const up = ev => {const was=ptrs.has(ev.pointerId); ptrs.delete(ev.pointerId); if(!was||!drag)return;
+  if (!moved && ptrs.size===0 && ev.type==='pointerup'){const p=drag.pane, r=p.el.getBoundingClientRect(), px=ev.clientX-r.left, py=ev.clientY-r.top;
+    origin={x:view.cx+(px-p.W/2)/view.s, y:view.cy-(py-p.H/2)/view.s, label:'your pin'}; run()}
+  if (ptrs.size===0) drag=null};
+$('maps').addEventListener('pointerup', up); $('maps').addEventListener('pointercancel', up);
+$('maps').addEventListener('wheel', ev => {ev.preventDefault(); const p=paneAt(ev), r=p.el.getBoundingClientRect(); zoomAt(Math.exp(-ev.deltaY*0.0015), ev.clientX-r.left, ev.clientY-r.top, p)}, {passive:false});
+function zoomAt(f, px, py, p){const wx=view.cx+(px-p.W/2)/view.s, wy=view.cy-(py-p.H/2)/view.s; view.s=Math.max(0.005,Math.min(2,view.s*f));
+  view.cx=wx-(px-p.W/2)/view.s; view.cy=wy+(py-p.H/2)/view.s; schedule()}
+let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{pend=0; redraw()})}
+const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
+group('[data-b]', b => {budget=+b.dataset.b; title(); play()});
+group('[data-v]', b => {viewMode=b.dataset.v; title(); if(net){layout(); play()}});
+$('dep').addEventListener('change', ev => {dep=+ev.target.value; run()});
+$('traffic').addEventListener('change', run); $('park').addEventListener('change', run);
+$('play').addEventListener('click', play);
+const ro = new ResizeObserver(() => {if(!net||!panes.length)return; panes.forEach(p=>p.resize()); redraw()}); ro.observe($('maps'));
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => net && redraw());
+new MutationObserver(() => net && redraw()).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
+
+load().then(() => {
+  masks(); layout();
+  const p = panes[0]; view.s = Math.min(p.W/26000, p.H/22000);
+  run();
+}).catch(err => {$('status').textContent = 'Could not load the network data: ' + err.message});
+}
+</script>
+</body>
+</html>

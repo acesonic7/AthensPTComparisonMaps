@@ -1,0 +1,11 @@
+# raw downloads (re-fetch with the commands in README)
+dl/
+# OSM download caches and intermediate graphs (rebuild with prep/fetch_roads.py)
+prep/cache*/
+prep/*.graphml
+prep/*.osm
+prep/*.log
+# local tooling
+.claude/
+__pycache__/
+.DS_Store
