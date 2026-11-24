@@ -17,7 +17,7 @@
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Commissioner,system-ui,sans-serif;overflow-x:clip}
-header{padding:20px max(3vw,16px) 12px;display:grid;gap:14px}
+header{padding:22px max(3vw,16px) 16px;display:grid;gap:12px}
 h1{font-size:clamp(26px,3.4vw,40px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
 .sub{color:var(--mute);margin:6px 0 0;font-size:15px}
 .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -26,7 +26,21 @@ h1{font-size:clamp(26px,3.4vw,40px);line-height:1.05;margin:0;font-weight:800;te
 button,select{font:600 15px Commissioner,system-ui,sans-serif;min-height:44px;padding:0 14px;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:10px;cursor:pointer}
 button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
-label.f{display:flex;align-items:center;gap:6px;color:var(--mute);font-size:14px}
+/* tier 1: what you look at */
+.seg.big{justify-self:start}.seg.big button{min-height:52px;font-size:17px;font-weight:700;padding:0 20px}
+/* tier 2: animation */
+.row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.lab{font-size:14px;color:var(--mute)}
+.ghost{background:transparent}
+/* tier 3: assumptions */
+.opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:end;padding-top:10px;border-top:1px solid var(--line)}
+.opts label{display:grid;gap:2px;font-size:13px;color:var(--mute)}
+.opts select{min-height:40px;font-size:14px;font-weight:500;background:transparent;padding:0 10px}
+.hint{margin:0;min-height:3em;font-size:15px;color:var(--mute);max-width:80ch}
+.hint b{color:var(--ink);font-weight:700;margin-right:6px}
+.mapwrap{position:relative}
+.mapctl{position:absolute;right:12px;bottom:12px;z-index:2;background:var(--bg);border-radius:11px;box-shadow:0 1px 4px rgb(0 0 0/.12)}
+.mapctl button{font-size:14px;min-height:40px}
 .maps{display:grid;grid-template-columns:minmax(0,1fr);border-block:1px solid var(--line);touch-action:none;cursor:crosshair}
 .maps.two{grid-template-columns:repeat(2,minmax(0,1fr))}
 .pane{position:relative;height:min(72vh,800px);min-height:420px}
@@ -73,32 +87,38 @@ details td,details th{font-size:13px;padding:3px 6px}
 .tag{display:inline-block;padding:0 6px;border-radius:5px;color:#fff;font-weight:700;font-size:13px;margin-right:4px}
 @media(max-width:700px){#trip{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
-@media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.seg.big button{font-size:15px;padding:0 13px;min-height:48px}.mapctl{left:12px;right:auto;bottom:auto;top:112px}.legend{width:calc(100% - 32px)}}
 </style>
 </head>
 <body>
 <header>
   <div>
-    <h1 id="title">How far does public transport take you in 45 minutes?</h1>
-    <p class="sub">Click the map to set the start, or switch to “Click shows trip” to see both journeys to a point step by step. Walking + bus, trolley, metro, tram and suburban rail, compared with driving in modelled traffic.</p>
+    <h1 id="title">How far can you reach in 45 minutes?</h1>
+    <p class="sub">From any point in Athens, by public transport or by car on a weekday morning. Click the map to move the start.</p>
   </div>
-  <div class="ctl">
-    <div class="seg" role="group" aria-label="View">
-      <button data-v="pt" aria-pressed="true">Transit</button><button data-v="car">Car</button><button data-v="both">Side by side</button><button data-v="diff">Which is faster</button><button data-v="mode">Main mode</button>
-    </div>
+  <div class="seg big" role="group" aria-label="Map view">
+    <button data-v="pt" aria-pressed="true" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-hint="Each street coloured by the vehicle you spend longest on to reach it.">Main mode</button>
+  </div>
+  <p class="hint" id="hint" aria-live="polite"></p>
+  <div class="row">
+    <span class="lab">Show up to</span>
     <div class="seg" role="group" aria-label="Time budget">
-      <button data-b="15">15 min</button><button data-b="30">30 min</button><button data-b="45" aria-pressed="true">45 min</button>
+      <button data-b="15" data-hint="Stop the spread at 15 minutes.">15 min</button><button data-b="30" data-hint="Stop the spread at 30 minutes.">30 min</button><button data-b="45" aria-pressed="true" data-hint="Stop the spread at 45 minutes.">45 min</button>
     </div>
-    <label class="f">Leave at <select id="dep"></select></label>
-    <label class="f">Traffic <select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
-    <label class="f">Car parking <select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
-    <div class="seg" role="group" aria-label="What a click on the map does">
-      <button data-c="start" aria-pressed="true">Click sets start</button><button data-c="trip">Click shows trip</button>
-    </div>
-    <button id="play">Replay</button>
+    <button id="play" class="ghost" data-hint="Play the spread again from minute zero.">↻ Replay</button>
+  </div>
+  <div class="opts">
+    <label data-hint="When you set off. Changes which buses and trains you can catch and how busy the roads are.">Leave at<select id="dep"></select></label>
+    <label data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual.">Traffic<select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
+    <label data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination.">Car parking<select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
   </div>
 </header>
-<div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
+<div class="mapwrap">
+  <div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
+  <div class="mapctl seg" role="group" aria-label="What a click on the map does">
+    <button data-c="start" aria-pressed="true" data-hint="Click the map to move the starting point.">Click sets start</button><button data-c="trip" data-hint="Click the map to compare both journeys to that point, step by step.">Click shows trip</button>
+  </div>
+</div>
 <section id="trip" hidden><div id="tripPT"></div><div id="tripCar"></div></section>
 <section class="below">
   <div>
@@ -426,11 +446,8 @@ function run(){
   res = {P, C, pt: edgeTimes(P.T, 1, e=>net.len[e]/WALK), walk: P.walkOnly, mult,
     car: C.park ? edgeTimes(C.T, 1, e=>net.len[e]/WALK) : edgeTimes(C.T, 6, carW), drive: edgeTimes(C.drive, 6, carW)};
   res.best = edgeTimes(best, 7, e=>Math.min(net.len[e]/WALK, carW(e)));
-  stats(); title(); feed(); if (dest) showTrip(); redraw(); play();
+  stats(); feed(); if (dest) showTrip(); redraw(); play();
 }
-function title(){$('title').textContent = {pt:`How far does public transport take you in ${budget} minutes?`, car:`How far does a car take you in ${budget} minutes?`,
-  both:`Transit or car: how far in ${budget} minutes?`, diff:`Where is transit faster than driving, within ${budget} minutes?`,
-  mode:`Which vehicle gets you there, within ${budget} minutes?`}[viewMode]}
 
 // ---------- interaction ----------
 const ptrs = new Map(); let drag=null, moved=false;
@@ -453,12 +470,24 @@ function zoomAt(f, px, py, p){const wx=view.cx+(px-p.W/2)/view.s, wy=view.cy-(py
 let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{pend=0; redraw()})}
 const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
-group('[data-b]', b => {budget=+b.dataset.b; title(); play()});
+group('[data-b]', b => {budget=+b.dataset.b; play()});
 group('[data-c]', b => {clickMode=b.dataset.c});
-group('[data-v]', b => {viewMode=b.dataset.v; title(); if(net){layout(); play()}});
+group('[data-v]', b => {viewMode=b.dataset.v; showHint(); if(net){layout(); play()}});
 $('dep').addEventListener('change', ev => {dep=+ev.target.value; run()});
 $('traffic').addEventListener('change', run); $('park').addEventListener('change', run);
 $('play').addEventListener('click', play);
+// explanation line: the hovered/focused control, otherwise the current view
+function showHint(el){
+  el = el || document.querySelector('[data-v][aria-pressed=true]');
+  const name = el.tagName==='LABEL' ? el.firstChild.textContent.trim() : el.textContent.replace('↻','').trim();
+  const b = document.createElement('b'); b.textContent = name;
+  $('hint').replaceChildren(b, document.createTextNode(el.dataset.hint));
+}
+document.querySelectorAll('[data-hint]').forEach(el => {
+  el.addEventListener('pointerenter', () => showHint(el)); el.addEventListener('focusin', () => showHint(el));
+  el.addEventListener('pointerleave', () => showHint()); el.addEventListener('focusout', () => showHint());
+});
+showHint();
 const ro = new ResizeObserver(() => {if(!net||!panes.length)return; panes.forEach(p=>p.resize()); redraw()}); ro.observe($('maps'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => net && redraw());
 new MutationObserver(() => net && redraw()).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
