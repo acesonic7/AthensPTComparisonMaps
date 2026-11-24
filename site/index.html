@@ -178,7 +178,7 @@ body.poster .legend{display:none}
   <div class="opts">
     <label data-ih="dep" data-hint="When you set off, from 05:00 to 04:45 the following night. Changes which buses and trains you can catch and how busy the roads are."><span data-i="dep">Leave at</span><select id="dep"></select></label>
     <div class="seg presets" role="group" aria-label="Quick departure times" data-ia="ga.presets">
-      <button data-t="28800" data-i="p.morning" data-hint="08:00, the morning rush.">Morning peak</button><button data-t="46800" data-i="p.midday" data-hint="13:00, between the peaks.">Midday</button><button data-t="68400" data-i="p.evening" data-hint="19:00, the evening.">Evening</button><button data-t="93600" data-i="p.night" data-hint="02:00, when only a few night buses run. Metro and tram have stopped.">Night</button>
+      <button id="now" data-i="p.now" data-hint="The time in Athens right now, to the nearest 15 minutes. Uses the weekday timetable, even at weekends.">Now</button><button data-t="28800" data-i="p.morning" data-hint="08:00, the morning rush.">Morning peak</button><button data-t="46800" data-i="p.midday" data-hint="13:00, between the peaks.">Midday</button><button data-t="68400" data-i="p.evening" data-hint="19:00, the evening.">Evening</button><button data-t="93600" data-i="p.night" data-hint="02:00, when only a few night buses run. Metro and tram have stopped.">Night</button>
     </div>
     <label data-car data-ih="traffic" data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual."><span data-i="traffic">Traffic</span><select id="traffic"><option value="typ" selected data-i="tr.typ">Typical for that hour</option><option value="free" data-i="tr.free">Free-flowing</option><option value="heavy" data-i="tr.heavy">Bad day</option></select></label>
     <label data-car data-ih="park" data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination."><span data-i="park">Car parking</span><select id="park"><option value="1" selected data-i="pk.1">Include search + walk</option><option value="0" data-i="pk.0">Ignore (door to door)</option></select></label>
@@ -235,6 +235,7 @@ const EL_STATIC = {
   'share':'Σύνδεσμος', 'share.a':'Κοινοποίηση συνδέσμου', 'share.h':'Αντιγράφει σύνδεσμο για αυτόν ακριβώς τον χάρτη: αφετηρία, ώρα, προβολή και όποια διαδρομή άνοιξες.',
   'save':'Εικόνα', 'save.a':'Αποθήκευση εικόνας', 'save.h':'Κατεβάζει τον χάρτη όπως είναι τώρα ως εικόνα PNG, με τίτλο και υπόμνημα.',
   'dep':'Αναχώρηση', 'dep.h':'Πότε ξεκινάς, από 05:00 έως 04:45 το επόμενο ξημέρωμα. Αλλάζει ποια λεωφορεία και τρένα προλαβαίνεις και πόση κίνηση έχουν οι δρόμοι.',
+  'p.now':'Τώρα', 'p.now.h':'Η ώρα στην Αθήνα αυτή τη στιγμή, στο πλησιέστερο τέταρτο. Χρησιμοποιεί τα δρομολόγια εργάσιμης, και τα Σαββατοκύριακα.',
   'p.morning':'Πρωινή αιχμή', 'p.morning.h':'08:00, η πρωινή αιχμή.', 'p.midday':'Μεσημέρι', 'p.midday.h':'13:00, ανάμεσα στις αιχμές.',
   'p.evening':'Απόγευμα', 'p.evening.h':'19:00, το απόγευμα.', 'p.night':'Νύχτα', 'p.night.h':'02:00, όταν κυκλοφορούν μόνο λίγα νυχτερινά λεωφορεία. Μετρό και τραμ έχουν σταματήσει.',
   'traffic':'Κίνηση', 'traffic.h':'Συνήθης: η τυπική κίνηση εργάσιμης για εκείνη την ώρα. Ελεύθερη ροή: άδειοι δρόμοι. Κακή μέρα: περισσότερη κίνηση από το συνηθισμένο.',
@@ -787,9 +788,16 @@ const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEven
 group('[data-b]', b => {budget=+b.dataset.b; saveLink(); play()});
 group('[data-c]', b => {clickMode=b.dataset.c});
 group('[data-v]', b => {viewMode=b.dataset.v; showHint(); carOpts(); saveLink(); if(net){layout(); play()}});
-$('dep').addEventListener('change', ev => {dep=+ev.target.value; syncPresets(); run()});
-function syncPresets(){document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.t===dep))}
-document.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {dep=+b.dataset.t; $('dep').value=dep; syncPresets(); run()}));
+// "Now": the clock in Athens, to the nearest 15-minute slot; 00:00–04:59 counts as the night after the working day
+let usingNow = false;
+function nowDep(){
+  const [h, m] = new Intl.DateTimeFormat('en-GB', {timeZone:'Europe/Athens', hour:'2-digit', minute:'2-digit', hourCycle:'h23'}).format(new Date()).split(':').map(Number);
+  let t = h*3600 + m*60; if (t < meta.depFirst) t += 24*3600;
+  t = Math.round(t/900)*900; return Math.min(meta.depLast, Math.max(meta.depFirst, t))}
+$('dep').addEventListener('change', ev => {dep=+ev.target.value; usingNow=false; syncPresets(); run()});
+function syncPresets(){document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', !usingNow && +b.dataset.t===dep)); $('now').setAttribute('aria-pressed', usingNow)}
+document.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {dep=+b.dataset.t; usingNow=false; $('dep').value=dep; syncPresets(); run()}));
+$('now').addEventListener('click', () => {if (!meta) return; dep=nowDep(); usingNow=true; $('dep').value=dep; syncPresets(); run()});
 $('traffic').addEventListener('change', run); $('park').addEventListener('change', run);
 $('play').addEventListener('click', play);
 // explanation line: the hovered/focused control, otherwise the current view

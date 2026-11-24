@@ -7,7 +7,7 @@ An interactive map of how far you can get from any point in the Athens basin in 
 - **Public transport**: walking plus bus, trolley, metro (M1–M3), tram and Proastiakos suburban rail, using real timetables
 - **Car**: driving with a modelled typical-weekday traffic profile, one-way streets and an optional allowance for parking
 
-Pick any departure time from 05:00 to 04:45 the following night (with Morning peak, Midday, Evening and Night presets), and click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. All routing runs in the browser. The views are:
+Pick any departure time from 05:00 to 04:45 the following night (with Now, Morning peak, Midday, Evening and Night presets; Now uses the time in Athens), and click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. All routing runs in the browser. The views are:
 
 - **Transit** and **Car**: travel time to every street. On the car map, faint streets are ones the car drives past and solid streets are ones you have parked and walked to.
 - **Side by side**: both maps, with pan and zoom linked.
