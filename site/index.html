@@ -44,9 +44,9 @@
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Commissioner,system-ui,sans-serif;overflow-x:clip}
-header{padding:22px max(3vw,16px) 16px;display:grid;gap:12px}
-h1{font-size:clamp(26px,3.4vw,40px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
-.sub{color:var(--mute);margin:6px 0 0;font-size:15px}
+header{padding:14px max(3vw,16px) 10px;display:grid;gap:8px}
+h1{font-size:clamp(24px,2.8vw,34px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
+.sub{color:var(--mute);margin:4px 0 0;font-size:15px}
 .why{color:var(--ink);font-weight:600;white-space:nowrap;text-underline-offset:3px}
 .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-wrap:wrap}
@@ -55,26 +55,27 @@ button,select{font:600 15px Commissioner,system-ui,sans-serif;min-height:44px;pa
 button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
 /* tier 1: what you look at */
-.seg.big{justify-self:start}.seg.big button{min-height:52px;font-size:17px;font-weight:700;padding:0 20px}
+.seg.big{justify-self:start}.seg.big button{min-height:48px;font-size:17px;font-weight:700;padding:0 20px}
 /* tier 2: animation */
 .row{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.top{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center}
 .lab{font-size:14px;color:var(--mute)}
 .ghost{background:transparent}
 /* tier 3: assumptions */
-.opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:end;padding-top:10px;border-top:1px solid var(--line)}
-.opts label{display:grid;gap:2px;font-size:13px;color:var(--mute)}
+.opts{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:center;padding-top:8px;border-top:1px solid var(--line)}
+.opts label{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--mute)}
 .opts label[hidden]{display:none}
 .presets button{min-height:40px;font-size:14px;font-weight:500;background:transparent;padding:0 12px}
 .presets button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 .opts select{min-height:40px;font-size:14px;font-weight:500;background:transparent;padding:0 10px}
-.hint{margin:0;min-height:3em;font-size:15px;color:var(--mute);max-width:80ch}
+.hint{margin:0;min-height:1.5em;font-size:14px;color:var(--mute);max-width:80ch}
 .hint b{color:var(--ink);font-weight:700;margin-right:6px}
 .mapwrap{position:relative}
 .mapctl{position:absolute;right:12px;bottom:12px;z-index:2;background:var(--bg);border-radius:11px;box-shadow:0 1px 4px rgb(0 0 0/.12)}
 .mapctl button{font-size:14px;min-height:40px}
 .maps{display:grid;grid-template-columns:minmax(0,1fr);border-block:1px solid var(--line);touch-action:none;cursor:crosshair}
 .maps.two{grid-template-columns:repeat(2,minmax(0,1fr))}
-.pane{position:relative;height:min(72vh,800px);min-height:420px}
+.pane{position:relative;height:calc(100svh - var(--hdr,380px) - 2px);min-height:360px}
 .maps.two .pane+.pane{border-left:1px solid var(--line)}
 .pane canvas{position:absolute;inset:0;width:100%;height:100%}
 .clock{position:absolute;left:16px;top:14px;pointer-events:none}
@@ -130,25 +131,36 @@ body.poster .maps{border:0}body.poster .pane{height:100vh;min-height:0}
 .pcard .url{margin:16px 0 0;font-weight:700;color:var(--ink);font-size:17px}
 body.poster .legend{display:none}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
-@media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.seg.big button{font-size:15px;padding:0 13px;min-height:48px}.mapctl{left:12px;right:auto;bottom:auto;top:112px}.legend{width:calc(100% - 32px)}}
+@media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.legend{width:calc(100% - 32px)}
+  header{padding:10px 12px 8px;gap:8px}h1{font-size:22px}.sub{font-size:13px;margin-top:2px}.sub .desc{display:none}
+  .top,.opts{gap:8px 10px}
+  .seg.big,.presets{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
+  .seg.big button,.presets button{white-space:nowrap;flex:none}
+  .seg.big button{font-size:14px;padding:0 12px;min-height:42px}
+  .row{gap:8px}.row .lab{display:none}.row button,.opts select{min-height:38px;font-size:14px;padding:0 10px}
+  .presets button{min-height:36px;font-size:13px;padding:0 10px}
+  .opts label{gap:6px}
+  .hint{font-size:13px;min-height:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .mapctl{left:12px;right:auto;bottom:62px}.mapctl button{min-height:36px;font-size:13px}}
 </style>
 </head>
 <body>
 <header>
   <div>
     <h1 id="title">How far can you reach in 45 minutes?</h1>
-    <p class="sub">From any point in Athens, by public transport or by car, at any time of a working day. Click the map to move the start. <a href="about.html" class="why">Why this map →</a></p>
+    <p class="sub"><span class="desc">From any point in Athens, by public transport or by car, at any time of a working day. Click the map to move the start. </span><a href="about.html" class="why">Why this map →</a></p>
   </div>
+  <div class="top">
   <div class="seg big" role="group" aria-label="Map view">
     <button data-v="pt" aria-pressed="true" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-hint="Public transport only: each street coloured by the bus, trolley, metro, tram or train you spend longest on to reach it.">Transit by mode</button>
   </div>
-  <p class="hint" id="hint" aria-live="polite"></p>
   <div class="row">
     <span class="lab">Show up to</span>
     <div class="seg" role="group" aria-label="Time budget">
       <button data-b="15" data-hint="Stop the spread at 15 minutes.">15 min</button><button data-b="30" data-hint="Stop the spread at 30 minutes.">30 min</button><button data-b="45" aria-pressed="true" data-hint="Stop the spread at 45 minutes.">45 min</button>
     </div>
     <button id="play" class="ghost" data-hint="Play the spread again from minute zero.">↻ Replay</button>
+  </div>
   </div>
   <div class="opts">
     <label data-hint="When you set off, from 05:00 to 04:45 the following night. Changes which buses and trains you can catch and how busy the roads are.">Leave at<select id="dep"></select></label>
@@ -158,6 +170,7 @@ body.poster .legend{display:none}
     <label data-car data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual.">Traffic<select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
     <label data-car data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination.">Car parking<select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
   </div>
+  <p class="hint" id="hint" aria-live="polite"></p>
 </header>
 <div class="mapwrap">
   <div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
@@ -573,6 +586,7 @@ showHint();
 // traffic and parking only matter when a car map is on screen
 function carOpts(){const on = ['car','both','diff'].includes(viewMode); document.querySelectorAll('[data-car]').forEach(l => l.hidden = !on)}
 carOpts();
+new ResizeObserver(() => document.documentElement.style.setProperty('--hdr', document.querySelector('header').offsetHeight+'px')).observe(document.querySelector('header'));
 const ro = new ResizeObserver(() => {if(!net||!panes.length)return; panes.forEach(p=>p.resize()); redraw()}); ro.observe($('maps'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => net && redraw());
 new MutationObserver(() => net && redraw()).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
