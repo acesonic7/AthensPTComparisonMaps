@@ -16,6 +16,8 @@ Pick any departure time from 05:00 to 04:45 the following night (with Morning pe
 
 Switch to **Click shows trip** and click a destination to see both journeys step by step, with times, and their routes drawn on the map.
 
+Under each map's clock, a line gives the area within reach for the chosen time budget, next to the other modes. **Share link** copies a link to the exact map on screen: the start point, departure time, view, time budget, car options and any trip you opened are all kept in the address (for example `?from=-2000,3500&at=0200&view=both`).
+
 ## Why
 
 Whether a job, a school or a hospital is "close" depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This project makes that visible street by street. It aims to:

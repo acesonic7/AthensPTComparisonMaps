@@ -82,6 +82,7 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-of
 .clock em{display:block;font-style:normal;font-weight:600;font-size:15px}
 .clock b{display:block;font-size:clamp(30px,4.5vw,52px);line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
 .clock span{color:var(--mute);font-size:14px}
+.clock .reach{display:block;margin-top:6px;font-size:14px;color:var(--ink);font-weight:600}.clock .reach i{font-style:normal;color:var(--mute);font-weight:500}
 .legend{position:absolute;left:16px;bottom:14px;width:min(320px,62%);pointer-events:none;font-size:13px;color:var(--mute)}
 .ramp{height:10px;border-radius:5px;background:linear-gradient(90deg,var(--c0),var(--c1),var(--c2))}
 .ramp.div{background:linear-gradient(90deg,#1d2bd8,#7d8ce8,#b3aca6,#f6a26b,#e8590c)}
@@ -137,7 +138,7 @@ body.poster .legend{display:none}
   .seg.big,.presets{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;max-width:100%}
   .seg.big button,.presets button{white-space:nowrap;flex:none}
   .seg.big button{font-size:14px;padding:0 12px;min-height:42px}
-  .row{gap:8px}.row .lab{display:none}.row button,.opts select{min-height:38px;font-size:14px;padding:0 10px}
+  .row{gap:8px}.row .lab,.row .t{display:none}.row button,.opts select{min-height:38px;font-size:14px;padding:0 9px}
   .presets button{min-height:36px;font-size:13px;padding:0 10px}
   .opts label{gap:6px}
   .hint{font-size:13px;min-height:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -159,7 +160,7 @@ body.poster .legend{display:none}
     <div class="seg" role="group" aria-label="Time budget">
       <button data-b="15" data-hint="Stop the spread at 15 minutes.">15 min</button><button data-b="30" data-hint="Stop the spread at 30 minutes.">30 min</button><button data-b="45" aria-pressed="true" data-hint="Stop the spread at 45 minutes.">45 min</button>
     </div>
-    <button id="play" class="ghost" data-hint="Play the spread again from minute zero.">↻ Replay</button>
+    <button id="play" class="ghost" data-hint="Play the spread again from minute zero." aria-label="Replay">↻<span class="t"> Replay</span></button><button id="share" class="ghost" data-hint="Copy a link to this exact map: start point, time, view and any trip you opened.">Share<span class="t"> link</span></button>
   </div>
   </div>
   <div class="opts">
@@ -348,10 +349,10 @@ class Pane {
     const legend = kind==='mode' ? `<div class="chips">${MODES.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join('')}</div><div class="lnote">Public transport: vehicle you spend longest on</div>`
       : `<div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div>`
         + (kind==='car' ? '<div class="lnote" data-park>Faint: car driving past · Solid: parked and arrived</div>' : '');
-    this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span></div><div class="legend">${legend}</div>`;
+    this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span><span class="reach"></span></div><div class="legend">${legend}</div>`;
     [this.base, this.ghost, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
     this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster', mode:'Public transport · main vehicle used'}[kind];
-    this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span');
+    this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span'); this.reach = this.el.querySelector('.reach');
   }
   resize(){const r=this.el.getBoundingClientRect(); this.W=r.width; this.H=r.height; const D=Math.min(2,devicePixelRatio||1);
     for (const l of [this.base,this.ghost,this.done,this.front]){l.c.width=this.W*D;l.c.height=this.H*D;l.x.setTransform(D,0,0,D,0,0)}}
@@ -416,6 +417,7 @@ class Pane {
     if (trip) this.drawTrip(f);
     const x=this.X(origin.x), y=this.Y(origin.y); f.fillStyle=css('--ink'); f.beginPath(); f.arc(x,y,7,0,7); f.fill(); f.fillStyle=css('--bg'); f.beginPath(); f.arc(x,y,3,0,7); f.fill();
     this.clk.textContent = Math.floor(lim/60) + ' min'; this.clk2.textContent = hm(dep + lim) + ' · left ' + hm(dep) + ' from ' + origin.label;
+    this.reach.innerHTML = reachLine(this.kind);
   }
 }
 let panes = [];
@@ -448,6 +450,8 @@ function play(){cancelAnimationFrame(anim.raf); panes.forEach(p=>p.reset());
 const MODES = [['Bus','#2f6fde'],['Trolley','#d49a00'],['Metro','#d62828'],['Tram','#12a37a'],['Suburban rail','#7b4fb3'],['Walk only','#9aa0a6']];
 const MODE_PAL = MODES.map(m=>m[1]);
 let dest = null, clickMode = 'start', trip = null;
+// a new start point makes the old trip meaningless: drop its cards, its route on the map and its place in the link
+function clearTrip(){dest = null; trip = null; $('trip').hidden = true}
 function chain(T, n){const edges=[]; let len=0, g=0; while (T.pe[n] >= 0 && g++ < 1e5){const e=T.pe[n]; edges.push(e); len+=net.len[e]; n = net.u[e]===n ? net.v[e] : net.u[e]} return {edges, len}}
 const stopName = s => meta.stopNames[s] || 'stop';
 function ptTrip(d){
@@ -518,8 +522,16 @@ function area(T, lim, allow, W){
 function near(T, m, mask){let best=Infinity; const xy=net.xy;
   for (let i=0;i<net.N;i++){if(!mask[i]||T[i]===Infinity)continue; const d=Math.hypot(xy[2*i]-m.x, xy[2*i+1]-m.y); if (d<250) best=Math.min(best, T[i]+d/WALK)}
   return best}
+// headline under each map's clock: area within the chosen budget, with the other mode for comparison
+function reachLine(kind){const r = res && res.area && res.area.find(r=>r.b===budget); if (!r) return '';
+  const f = v => (v<10 ? v.toFixed(1) : Math.round(v).toLocaleString('en')) + ' km²';
+  const pt = `transit ${f(r.p)}`, car = `car ${f(r.c)}`;
+  if (kind==='car') return `${f(r.c)} within ${budget} min <i>· ${pt}</i>`;
+  if (kind==='diff') return `Within ${budget} min: ${pt} <i>· ${car}</i>`;
+  return `${f(r.p)} within ${budget} min <i>· ${car} · walk ${f(r.w)}</i>`}
 function stats(){
   const rows=[15,30,45].map(b=>({b, p:area(res.pt.T,b*60,1), c:res.C.park?area(res.car.T,b*60,1):area(res.car.T,b*60,6,res.car.w), w:area(res.walk,b*60,1)}));
+  res.area = rows;
   const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>(v<10?v.toFixed(1):Math.round(v).toLocaleString('en'))+' km²';
   $('bands').innerHTML=`<tr><th>Within</th><th><span class="dot" style="background:var(--c0)"></span>Transit</th><th><span class="dot" style="background:var(--car)"></span>Car</th><th>Walk only</th></tr>`+
     rows.map(r=>`<tr><td>${r.b} min</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
@@ -539,7 +551,7 @@ async function run(){
   res = {P, C, pt: edgeTimes(P.T, 1, e=>net.len[e]/WALK), walk: P.walkOnly, mult,
     car: C.park ? edgeTimes(C.T, 1, e=>net.len[e]/WALK) : edgeTimes(C.T, 6, carW), drive: edgeTimes(C.drive, 6, carW)};
   res.best = edgeTimes(best, 7, e=>Math.min(net.len[e]/WALK, carW(e)));
-  stats(); feed(); if (dest) showTrip(); redraw(); play();
+  stats(); feed(); if (dest) showTrip(); redraw(); play(); saveLink();
 }
 
 // ---------- interaction ----------
@@ -554,18 +566,51 @@ $('maps').addEventListener('pointermove', ev => {if(!ptrs.has(ev.pointerId)||!dr
 const up = ev => {const was=ptrs.has(ev.pointerId); ptrs.delete(ev.pointerId); if(!was||!drag)return;
   if (!moved && ptrs.size===0 && ev.type==='pointerup'){const p=drag.pane, r=p.el.getBoundingClientRect(), px=ev.clientX-r.left, py=ev.clientY-r.top;
     const pick={x:view.cx+(px-p.W/2)/view.s, y:view.cy-(py-p.H/2)/view.s};
-    if (clickMode==='trip'){dest=pick; showTrip(); panes.forEach(q=>q.frame(anim.t))} else {origin={...pick, label:'your pin'}; run()}}
+    if (clickMode==='trip'){dest=pick; showTrip(); saveLink(); panes.forEach(q=>q.frame(anim.t))} else {origin={...pick, label:pinLabel(pick)}; clearTrip(); run()}}
   if (ptrs.size===0) drag=null};
 $('maps').addEventListener('pointerup', up); $('maps').addEventListener('pointercancel', up);
 $('maps').addEventListener('wheel', ev => {ev.preventDefault(); const p=paneAt(ev), r=p.el.getBoundingClientRect(); zoomAt(Math.exp(-ev.deltaY*0.0015), ev.clientX-r.left, ev.clientY-r.top, p)}, {passive:false});
 function zoomAt(f, px, py, p){const wx=view.cx+(px-p.W/2)/view.s, wy=view.cy-(py-p.H/2)/view.s; view.s=Math.max(0.005,Math.min(2,view.s*f));
   view.cx=wx-(px-p.W/2)/view.s; view.cy=wy+(py-p.H/2)/view.s; schedule()}
+// name a pin after the nearest named place, if one is close
+function pinLabel(o){let best=null, bd=3000; for (const m of meta.marks){const d=Math.hypot(m.x-o.x, m.y-o.y); if (d<bd){bd=d; best=m}}
+  return best ? (bd < 300 ? best.name : 'near ' + best.name) : 'your pin'}
+// ---------- shareable links: start, departure, view, budget, car options and trip destination live in the URL ----------
+const DEF = {dep:8*3600, budget:45, view:'pt', traffic:'typ', park:'1'};
+const hhmm = t => hm(t).replace(':','');
+function linkState(){const q = new URLSearchParams();
+  if (origin.x || origin.y) q.set('from', Math.round(origin.x)+','+Math.round(origin.y));
+  if (dep !== DEF.dep) q.set('at', hhmm(dep));
+  if (viewMode !== DEF.view) q.set('view', viewMode);
+  if (budget !== DEF.budget) q.set('min', budget);
+  if ($('traffic').value !== DEF.traffic) q.set('traffic', $('traffic').value);
+  if ($('park').value !== DEF.park) q.set('park', 'no');
+  if (dest) q.set('to', Math.round(dest.x)+','+Math.round(dest.y));
+  return q}
+function saveLink(){if (POSTER) return; const q = linkState().toString().replace(/%2C/g, ','); history.replaceState(null, '', location.pathname + (q ? '?' + q : ''))}
+function readLink(){const q = new URLSearchParams(location.search), xy = v => {const m = /^(-?\d+),(-?\d+)$/.exec(v || ''); return m ? {x:+m[1], y:+m[2]} : null};
+  const o = xy(q.get('from')); if (o) origin = {...o, label:pinLabel(o)};
+  const a = /^(\d\d)(\d\d)$/.exec(q.get('at') || '');
+  if (a){let t = (+a[1])*3600 + (+a[2])*60; if (t < meta.depFirst) t += 24*3600; t -= t % 900; if (t >= meta.depFirst && t <= meta.depLast){dep = t; $('dep').value = t}}
+  const v = q.get('view'); if (['pt','car','both','diff','mode'].includes(v)) viewMode = v;
+  const b = +q.get('min'); if ([15,30,45].includes(b)) budget = b;
+  if (['free','heavy'].includes(q.get('traffic'))) $('traffic').value = q.get('traffic');
+  if (q.get('park') === 'no') $('park').value = '0';
+  const d = xy(q.get('to')); if (d) dest = d;
+  document.querySelectorAll('[data-v]').forEach(x => x.setAttribute('aria-pressed', x.dataset.v === viewMode));
+  document.querySelectorAll('[data-b]').forEach(x => x.setAttribute('aria-pressed', +x.dataset.b === budget));
+  showHint(); carOpts()}
+$('share').addEventListener('click', async () => {saveLink(); const url = location.href, btn = $('share'), was = btn.innerHTML;
+  try {
+    if (navigator.share && matchMedia('(pointer: coarse)').matches) await navigator.share({title: document.title, url});
+    else {await navigator.clipboard.writeText(url); btn.textContent = '✓ Copied'; setTimeout(() => btn.innerHTML = was, 1800)}
+  } catch (e) {}});
 let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{pend=0; redraw()})}
 const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
-group('[data-b]', b => {budget=+b.dataset.b; play()});
+group('[data-b]', b => {budget=+b.dataset.b; saveLink(); play()});
 group('[data-c]', b => {clickMode=b.dataset.c});
-group('[data-v]', b => {viewMode=b.dataset.v; showHint(); carOpts(); if(net){layout(); play()}});
+group('[data-v]', b => {viewMode=b.dataset.v; showHint(); carOpts(); saveLink(); if(net){layout(); play()}});
 $('dep').addEventListener('change', ev => {dep=+ev.target.value; syncPresets(); run()});
 function syncPresets(){document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.t===dep))}
 document.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {dep=+b.dataset.t; $('dep').value=dep; syncPresets(); run()}));
@@ -597,7 +642,7 @@ if (POSTER){document.body.classList.add('poster');
   c.innerHTML='<h1>How far can you reach in 45 minutes?</h1><p>Athens by public transport, street by street. Compared with the car, at any hour of a working day.</p><div class="ramp"></div><div class="ticks"><span>0</span><span>15</span><span>30</span><span>45 min</span></div><p class="url">athens-transit-reach.vercel.app</p>';
   document.querySelector('.mapwrap').append(c)}
 load().then(() => {
-  syncPresets(); masks(); layout();
+  if (!POSTER) readLink(); syncPresets(); masks(); layout();
   const p = panes[0]; view.s = Math.min(p.W/26000, p.H/22000);
   if (POSTER){view.s = p.H/19000; view.cx = -7800; view.cy = 2600}
   run();
