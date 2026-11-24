@@ -5,7 +5,14 @@ An interactive map of how far you can get from any point in the Athens basin in 
 - **Public transport**: walking plus bus, trolley, metro (M1–M3), tram and Proastiakos suburban rail, using real timetables
 - **Car**: driving with a modelled typical-weekday traffic profile, one-way streets and an optional allowance for parking
 
-Click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. The views are **Transit**, **Car**, **Side by side**, and **Which is faster**, which colours each street by whether transit or the car gets there first. All routing runs in the browser.
+Click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. All routing runs in the browser. The views are:
+
+- **Transit** and **Car**: travel time to every street. On the car map, faint streets are ones the car drives past and solid streets are ones you have parked and walked to.
+- **Side by side**: both maps, with pan and zoom linked.
+- **Which is faster**: each street coloured by whether transit or the car gets there first.
+- **Main mode**: each street coloured by the vehicle you spend longest on to reach it (bus, trolley, metro, tram, suburban rail, or walking only).
+
+Switch to **Click shows trip** and click a destination to see both journeys step by step, with times, and their routes drawn on the map.
 
 ## Run it
 
@@ -50,7 +57,7 @@ The service days are set at the top of `prep/build_data.py` (`BUS_SERVICE`, `RAI
 
 - **Streets**: OSM highways from motorway down to pedestrian streets, simplified with osmnx. Each street segment records its road type, whether you can walk on it, and which directions cars may use.
 - **Transit**: connections departing 06:30–10:30 on a Tuesday, routed with the Connection Scan Algorithm. You walk to the first stop and from the last one. Transfers between stops up to about 350 m apart are allowed, with a 1-minute buffer before boarding. Walking speed is 4.8 km/h.
-- **Car**: a model, not live traffic. Free-flow speed by road type, times a congestion factor that depends on the departure time and peaks around 08:00–09:00. Each junction adds a delay, and driving within about 2.5 km of Syntagma is 15% slower. With parking on, a trip adds time to reach the car, find a space and walk to the door. That time is longest near the centre. The numbers are listed in the page under *How car travel times are modelled* and are set at the top of the script in `site/index.html`.
+- **Car**: a model, not live traffic. Free-flow speed by road type, times a congestion factor that depends on the departure time and peaks around 08:00–09:00. Each junction adds a delay, and driving within about 2.5 km of Syntagma is 15% slower. With parking on, a car trip is: reach the car (2 min), drive to any parking spot, search for a space there (8 min near the centre, down to 1 min in the suburbs), then walk to the destination. Walking straight there is allowed when it's quicker. The numbers are listed in the page under *How car travel times are modelled* and are set at the top of the script in `site/index.html`.
 
 ## Limitations
 

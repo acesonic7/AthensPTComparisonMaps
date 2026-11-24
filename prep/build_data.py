@@ -138,6 +138,11 @@ def mode(r):
         return 3 if r.route_type == "0" else 2
     return 1 if r.route_type == "11" else 0
 trips["mode"] = [mode(r) for r in trips.itertuples()]
+# display name per trip: bus/trolley number, metro/tram line, or Proastiakos
+def rname(r):
+    if r.mode == 4: return "Proastiakos" if r.route_type == "109" else "Train"
+    return str(r.route_short_name)
+trips["rname"] = [rname(r) for r in trips.itertuples()]
 
 st = st.sort_values(["trip_id", "seq"])
 nxt = st.groupby("trip_id").shift(-1)
@@ -160,7 +165,11 @@ print(f"stops: {len(stops)}, snap distance median {np.median(dist):.0f} m, p95 {
 
 trip_ids = pd.unique(conn.trip)
 tidx = {t: i for i, t in enumerate(trip_ids)}
-tmode = trips.set_index("trip_id").loc[trip_ids, "mode"].values.astype("u1")
+tinfo = trips.drop_duplicates("trip_id").set_index("trip_id").loc[trip_ids]
+tmode = tinfo["mode"].values.astype("u1")
+route_names = sorted(set(tinfo.rname))
+rn_idx = {n: i for i, n in enumerate(route_names)}
+troute = tinfo.rname.map(rn_idx).values.astype("<u2")
 conn = conn.sort_values(["td", "ta"])
 ca = conn.a.map(sidx).values; cb = conn.b.map(sidx).values
 ctrip = conn.trip.map(tidx).values
@@ -186,6 +195,7 @@ with open(os.path.join(OUT, "pt.bin"), "wb") as f:
     f.write(tmode.tobytes())
     f.write(b"\0" * ((-len(tmode)) % 4))
     f.write(foff.tobytes()); f.write(pairs[:, 1].astype("<u4").tobytes()); f.write(fd.astype("<f4").tobytes())
+    f.write(troute.tobytes())
 
 # rail lines for drawing: stop sequence of the longest trip per route
 lines = []
@@ -230,7 +240,8 @@ for name, la, lo in marks:
 
 meta = {"lat0": LAT0, "lon0": LON0, "mPerDegLat": M_PER_DEG_LAT, "mPerDegLon": float(M_PER_DEG_LON),
         "tMin": T_MIN, "tMax": T_MAX, "day": "a Tuesday: OASA buses/trolleys and STASY metro/tram (summer 2026 timetable), Hellenic Train Proastiakos (1 Dec 2026)",
-        "lines": lines, "marks": mk}
+        "lines": lines, "marks": mk,
+        "routes": route_names, "stopNames": stops.stop_name.fillna("").str.strip().tolist()}
 json.dump(meta, open(os.path.join(OUT, "meta.json"), "w"))
 import base64
 for fn in ("net", "pt"):

@@ -57,6 +57,21 @@ td.win{font-weight:800}
 details{margin-top:14px;font-size:14px;max-width:75ch}
 summary{cursor:pointer;font-weight:600;min-height:32px}
 details td,details th{font-size:13px;padding:3px 6px}
+.chips{display:flex;flex-wrap:wrap;gap:4px 12px;pointer-events:none}
+.chips span{white-space:nowrap}
+.lnote{margin-top:4px}
+#trip{padding:20px max(3vw,16px) 4px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(20px,3vw,48px);border-bottom:1px solid var(--line)}
+#trip[hidden]{display:none}
+#trip h3{margin:0 0 2px;font-size:15px;color:var(--mute);font-weight:600}
+#trip .tot{font-size:clamp(26px,3vw,34px);font-weight:800;line-height:1.1;font-variant-numeric:tabular-nums}
+.legs{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:10px 0 8px;background:var(--panel)}
+.legs i{display:block;height:100%;min-width:2px}
+.steps{list-style:none;margin:0;padding:0;font-size:15px}
+.steps li{display:grid;grid-template-columns:3.2em minmax(0,1fr) auto;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
+.steps .clk{color:var(--mute);font-variant-numeric:tabular-nums}
+.steps .d{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
+.tag{display:inline-block;padding:0 6px;border-radius:5px;color:#fff;font-weight:700;font-size:13px;margin-right:4px}
+@media(max-width:700px){#trip{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}}
 </style>
@@ -65,11 +80,11 @@ details td,details th{font-size:13px;padding:3px 6px}
 <header>
   <div>
     <h1 id="title">How far does public transport take you in 45 minutes?</h1>
-    <p class="sub">Click anywhere on the map to start there. Walking + bus, trolley, metro, tram and suburban rail, compared with driving in modelled traffic.</p>
+    <p class="sub">Click the map to set the start, or switch to “Click shows trip” to see both journeys to a point step by step. Walking + bus, trolley, metro, tram and suburban rail, compared with driving in modelled traffic.</p>
   </div>
   <div class="ctl">
     <div class="seg" role="group" aria-label="View">
-      <button data-v="pt" aria-pressed="true">Transit</button><button data-v="car">Car</button><button data-v="both">Side by side</button><button data-v="diff">Which is faster</button>
+      <button data-v="pt" aria-pressed="true">Transit</button><button data-v="car">Car</button><button data-v="both">Side by side</button><button data-v="diff">Which is faster</button><button data-v="mode">Main mode</button>
     </div>
     <div class="seg" role="group" aria-label="Time budget">
       <button data-b="15">15 min</button><button data-b="30">30 min</button><button data-b="45" aria-pressed="true">45 min</button>
@@ -77,10 +92,14 @@ details td,details th{font-size:13px;padding:3px 6px}
     <label class="f">Leave at <select id="dep"></select></label>
     <label class="f">Traffic <select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
     <label class="f">Car parking <select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
+    <div class="seg" role="group" aria-label="What a click on the map does">
+      <button data-c="start" aria-pressed="true">Click sets start</button><button data-c="trip">Click shows trip</button>
+    </div>
     <button id="play">Replay</button>
   </div>
 </header>
 <div class="maps" id="maps"><div class="status" id="status" style="position:relative;height:60vh">Loading streets and timetables…</div></div>
+<section id="trip" hidden><div id="tripPT"></div><div id="tripCar"></div></section>
 <section class="below">
   <div>
     <h2>Streets within reach</h2>
@@ -89,7 +108,7 @@ details td,details th{font-size:13px;padding:3px 6px}
     <details><summary>How car travel times are modelled</summary>
       <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that peaks around 08:00–09:00 and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
       <table id="carmodel"></table>
-      <p>With parking on, a trip adds 2 min to reach the car, plus time to find a space and walk to the door: 12 min within 2 km of Syntagma, 8 min within 4 km, 5 min within 8 km, 2 min further out.</p>
+      <p>With parking on, the trip is: 2 min to reach the car, drive to a parking spot, spend time finding a space there (8 min within 2 km of Syntagma, 5 min within 4 km, 3 min within 8 km, 1 min further out), then walk to the destination. Parking a little further away and walking is allowed, and so is not taking the car at all. On the car map, faint streets are ones the car drives past; solid streets are ones you have actually arrived at.</p>
     </details>
   </div>
   <div>
@@ -128,7 +147,7 @@ async function load(){
   pt.a = new Uint32Array(pb, o, C); o += 4*C; pt.b = new Uint32Array(pb, o, C); o += 4*C; pt.trip = new Uint32Array(pb, o, C); o += 4*C;
   pt.td = new Uint16Array(pb, o, C); o += 2*C; pt.ta = new Uint16Array(pb, o, C); o += 2*C;
   pt.mode = new Uint8Array(pb, o, TR); o += TR; o += (4 - TR % 4) % 4;
-  pt.foff = new Uint32Array(pb, o, S+1); o += 4*(S+1); pt.fto = new Uint32Array(pb, o, F); o += 4*F; pt.fd = new Float32Array(pb, o, F);
+  pt.foff = new Uint32Array(pb, o, S+1); o += 4*(S+1); pt.fto = new Uint32Array(pb, o, F); o += 4*F; pt.fd = new Float32Array(pb, o, F); o += 4*F; pt.route = new Uint16Array(pb, o, TR);
   const deg = new Uint32Array(N+1);
   for (let e=0;e<E;e++){deg[net.u[e]+1]++;deg[net.v[e]+1]++}
   for (let i=0;i<N;i++) deg[i+1]+=deg[i];
@@ -145,12 +164,12 @@ function Heap(){let k=new Float64Array(1<<16),v=new Int32Array(1<<16),n=0;
   pop(){const top=v[0],tk=k[0];n--;if(n>0){const key=k[n],val=v[n];let i=0;for(;;){let c=2*i+1;if(c>=n)break;if(c+1<n&&k[c+1]<k[c])c++;if(k[c]>=key)break;k[i]=k[c];v[i]=v[c];i=c}k[i]=key;v[i]=val}return [tk,top]}}}
 // generic Dijkstra; cost(e, forward) returns seconds or Infinity
 function dijkstra(seeds, limit, cost){
-  const t = new Float64Array(net.N).fill(Infinity), h = Heap();
-  for (const [n, s] of seeds) if (s < t[n]) {t[n]=s; h.push(s, n)}
+  const t = new Float64Array(net.N).fill(Infinity), h = Heap(), pe = new Int32Array(net.N).fill(-1), src = new Int32Array(net.N).fill(-1);
+  seeds.forEach(([n, s], i) => {if (s < t[n]) {t[n]=s; src[n]=i; h.push(s, n)}});
   while (h.size){const [d, n] = h.pop(); if (d > t[n] || d > limit) continue;
     for (let j=adjOff[n]; j<adjOff[n+1]; j++){const e=adjE[j], fwd = net.u[e]===n, c = cost(e, fwd); if (c===Infinity) continue;
-      const m = fwd ? net.v[e] : net.u[e], nd = d + c; if (nd < t[m] && nd <= limit){t[m]=nd; h.push(nd, m)}}}
-  return t;
+      const m = fwd ? net.v[e] : net.u[e], nd = d + c; if (nd < t[m] && nd <= limit){t[m]=nd; pe[m]=e; src[m]=src[n]; h.push(nd, m)}}}
+  t.pe = pe; t.src = src; return t;
 }
 const walkCost = e => (net.flag[e] & 1) ? net.len[e]/WALK : Infinity;
 function nearestNode(x, y, mask){let best=0,bd=Infinity;const xy=net.xy;for(let i=0;i<net.N;i++){if(mask&&!mask[i])continue;const dx=xy[2*i]-x,dy=xy[2*i+1]-y,d=dx*dx+dy*dy;if(d<bd){bd=d;best=i}}return [best,Math.sqrt(bd)]}
@@ -161,16 +180,23 @@ function routePT(){
   const [o, od] = nearestNode(origin.x, origin.y, walkMask), t0 = od/WALK;
   const walkOnly = dijkstra([[o, t0]], LIM, walkCost);
   const arr = new Float64Array(pt.S).fill(Infinity), onTrip = new Uint8Array(pt.TR), rel = dep - meta.tMin;
+  // lab: -1 walked from origin, >=0 alighted from connection, <=-2 footpath from stop -(lab+2)
+  const lab = new Int32Array(pt.S).fill(-1), board = new Int32Array(pt.TR).fill(-1), mm = new Uint8Array(pt.S).fill(5), md = new Float64Array(pt.S);
   for (let s=0;s<pt.S;s++){if (pt.snap[s] > 400) continue; const w = walkOnly[pt.node[s]]; if (w < Infinity) arr[s] = rel + w + pt.snap[s]/WALK}
   let lo=0, hi=pt.C; while(lo<hi){const m=(lo+hi)>>1; if(pt.td[m] < rel) lo=m+1; else hi=m}
   for (let c=lo; c<pt.C; c++){const td = pt.td[c]; if (td > rel + LIM) break;
     const tr = pt.trip[c];
-    if (!onTrip[tr]){ if (arr[pt.a[c]] + BOARD > td) continue; onTrip[tr] = 1 }
+    if (!onTrip[tr]){ if (arr[pt.a[c]] + BOARD > td) continue; onTrip[tr] = 1; board[tr] = c }
     const b = pt.b[c], ta = pt.ta[c];
-    if (ta < arr[b]){arr[b] = ta; for (let f=pt.foff[b]; f<pt.foff[b+1]; f++){const j=pt.fto[f], tj = ta + pt.fd[f]/WALK; if (tj < arr[j]) arr[j] = tj}}}
-  const seeds = [[o, t0]];
-  for (let s=0;s<pt.S;s++) if (pt.snap[s] <= 400 && arr[s] - rel < LIM) seeds.push([pt.node[s], arr[s] - rel + pt.snap[s]/WALK]);
-  return {T: dijkstra(seeds, LIM, walkCost), walkOnly};
+    if (ta < arr[b]){arr[b] = ta; lab[b] = c;
+      const bc = board[tr], sa = pt.a[bc], ride = ta - pt.td[bc];
+      if (ride > md[sa]){mm[b] = pt.mode[tr]; md[b] = ride} else {mm[b] = mm[sa]; md[b] = md[sa]}
+      for (let f=pt.foff[b]; f<pt.foff[b+1]; f++){const j=pt.fto[f], tj = ta + pt.fd[f]/WALK; if (tj < arr[j]){arr[j] = tj; lab[j] = -(b+2); mm[j] = mm[b]; md[j] = md[b]}}}}
+  const seeds = [[o, t0]], seedStop = [-1];
+  for (let s=0;s<pt.S;s++) if (pt.snap[s] <= 400 && arr[s] - rel < LIM){seeds.push([pt.node[s], arr[s] - rel + pt.snap[s]/WALK]); seedStop.push(s)}
+  const T = dijkstra(seeds, LIM, walkCost), mode = new Uint8Array(net.N).fill(5);
+  for (let i=0;i<net.N;i++){const k = T.src[i]; if (k > 0) mode[i] = mm[seedStop[k]]}
+  return {T, walkOnly, arr, lab, board, seedStop, mode, rel, o, t0};
 }
 function congestion(){const tr=$('traffic').value; if (tr==='free') return 0;
   const h=(dep+15*60)/3600; let p=PROFILE[PROFILE.length-1][1];
@@ -178,7 +204,7 @@ function congestion(){const tr=$('traffic').value; if (tr==='free') return 0;
   if (h<PROFILE[0][0]) p=PROFILE[0][1];
   return tr==='heavy' ? Math.min(1.4, p*1.3+0.15) : p;
 }
-function parkPenalty(x, y){const r=Math.hypot(x, y); return r<2000?720:r<4000?480:r<8000?300:120}
+function searchTime(i){const r=Math.hypot(net.xy[2*i], net.xy[2*i+1]); return r<2000?480:r<4000?300:r<8000?180:60}
 function routeCar(){
   const p = congestion(), park = $('park').value==='1';
   const mult = PEAK_MULT.map(m => 1 + (m-1)*p);
@@ -187,9 +213,12 @@ function routeCar(){
     return (net.len[e]/(FREE_KMH[c]/3.6) + JUNC_S[c]) * mult[c] * core};
   const [o, od] = nearestNode(origin.x, origin.y, carMask);
   const drive = dijkstra([[o, od/WALK + (park?120:0)]], LIM, cost);
-  const T = new Float64Array(net.N);
-  for (let i=0;i<net.N;i++) T[i] = drive[i] + (park && drive[i]<Infinity ? parkPenalty(net.xy[2*i], net.xy[2*i+1]) : 0);
-  return {T, mult};
+  if (!park) return {T: drive, drive, mult, park, od};
+  // park anywhere the car reached (after searching for a space there), then walk; or just walk from the start
+  const [ow, owd] = nearestNode(origin.x, origin.y, walkMask), seeds = [[ow, owd/WALK]], seedNode = [-1];
+  for (let i=0;i<net.N;i++) if (walkMask[i] && drive[i] < LIM){const t = drive[i] + searchTime(i); if (t < LIM){seeds.push([i, t]); seedNode.push(i)}}
+  const T = dijkstra(seeds, LIM, walkCost);
+  return {T, drive, mult, park, seedNode, od, owd};
 }
 function edgeTimes(T, allowMask, wFn){
   const t0 = new Float32Array(net.E), t1 = new Float32Array(net.E), w = new Float32Array(net.E), list = [];
@@ -215,14 +244,16 @@ const css = n => {probe.style.color = `var(${n})`; return getComputedStyle(probe
 class Pane {
   constructor(kind){
     this.kind = kind; this.el = document.createElement('div'); this.el.className = 'pane';
-    this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span></div>
-      <div class="legend"><div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div></div>`;
-    [this.base, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
-    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster'}[kind];
+    const legend = kind==='mode' ? `<div class="chips">${MODES.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join('')}</div><div class="lnote">Vehicle you spend longest on</div>`
+      : `<div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div>`
+        + (kind==='car' ? '<div class="lnote" data-park>Faint: car driving past · Solid: parked and arrived</div>' : '');
+    this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span></div><div class="legend">${legend}</div>`;
+    [this.base, this.ghost, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
+    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster', mode:'Main mode used'}[kind];
     this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span');
   }
   resize(){const r=this.el.getBoundingClientRect(); this.W=r.width; this.H=r.height; const D=Math.min(2,devicePixelRatio||1);
-    for (const l of [this.base,this.done,this.front]){l.c.width=this.W*D;l.c.height=this.H*D;l.x.setTransform(D,0,0,D,0,0)}}
+    for (const l of [this.base,this.ghost,this.done,this.front]){l.c.width=this.W*D;l.c.height=this.H*D;l.x.setTransform(D,0,0,D,0,0)}}
   X(x){return (x-view.cx)*view.s + this.W/2} Y(y){return this.H/2 - (y-view.cy)*view.s}
   trace(c, e, fu, fv){
     const xy=net.xy, p=net.pts, u=net.u[e], v=net.v[e], P=[[xy[2*u],xy[2*u+1]]];
@@ -245,7 +276,23 @@ class Pane {
     for (const m of meta.marks) c.fillText(m.name, this.X(m.x), this.Y(m.y)-8);
   }
   setData(d){this.d = d; this.reset()}
-  reset(){this.ptr=0; this.active=[]; this.done.x.clearRect(0,0,this.W,this.H)}
+  drawTrip(f){
+    const showPT = this.kind!=='car', showCar = this.kind==='car' || this.kind==='diff';
+    const path = edges => {for (const e of edges) this.trace(f,e,1,1)};
+    const draw = (legs) => {for (const L of legs){f.beginPath(); f.setLineDash([]);
+      if (L.k==='ride'){f.strokeStyle=MODES[L.mode][1]; f.lineWidth=5; L.stops.forEach((s,i)=>{const x=this.X(pt.xy[2*s]), y=this.Y(pt.xy[2*s+1]); i?f.lineTo(x,y):f.moveTo(x,y)})}
+      else if (L.k==='drive'){f.strokeStyle='#e8590c'; f.lineWidth=5; path(L.edges)}
+      else if (L.k==='walk'){f.strokeStyle=css('--ink'); f.lineWidth=2.5; f.setLineDash([4,4]);
+        if (L.line){const [a,b]=L.line; f.moveTo(this.X(pt.xy[2*a]),this.Y(pt.xy[2*a+1])); f.lineTo(this.X(pt.xy[2*b]),this.Y(pt.xy[2*b+1]))} else path(L.edges)}
+      else continue;
+      f.stroke()} f.setLineDash([])};
+    f.lineCap='round'; f.lineJoin='round';
+    if (showPT && trip.pt) draw(trip.pt.legs);
+    if (showCar && trip.car) draw(trip.car.legs);
+    const x=this.X(dest.x), y=this.Y(dest.y); f.fillStyle=css('--ink'); f.fillRect(x-6,y-6,12,12); f.fillStyle=css('--bg'); f.fillRect(x-2.5,y-2.5,5,5);
+  }
+  reset(){this.ptr=0; this.gptr=0; this.active=[]; this.done.x.clearRect(0,0,this.W,this.H); this.ghost.x.clearRect(0,0,this.W,this.H)
+    const n=this.el.querySelector('[data-park]'); if (n) n.hidden = !(this.d && this.d.ghost)}
   stroke(c, list, sec){const d=this.d, groups=Array.from({length:d.pal.length},()=>[]);
     for (const e of list) groups[d.bucket(e)].push(e);
     c.lineCap='round'; c.lineWidth=this.lw()*1.15;
@@ -257,16 +304,22 @@ class Pane {
     for (const e of this.active) (E.t1[e] <= lim ? newDone : still).push(e);
     this.active = still;
     if (newDone.length) this.stroke(this.done.x, newDone, lim);
+    const G = this.d.ghost;
+    if (G){const list=[]; while (this.gptr < G.order.length && G.t0[G.order[this.gptr]] <= lim) list.push(G.order[this.gptr++]);
+      if (list.length){const c=this.ghost.x, groups=Array.from({length:45},()=>[]); for (const e of list) groups[Math.min(44,Math.floor(G.t0[e]/60))].push(e);
+        c.globalAlpha=0.3; c.lineCap='round'; c.lineWidth=this.lw()*1.15;
+        groups.forEach((g,i)=>{if(!g.length)return; c.strokeStyle=TIME_PAL[i]; c.beginPath(); for (const e of g) this.trace(c,e,1,1); c.stroke()}); c.globalAlpha=1}}
     const f=this.front.x; f.clearRect(0,0,this.W,this.H); this.stroke(f, this.active, lim);
     if (this.kind==='pt'){f.lineWidth=1.5; f.strokeStyle=css('--ink'); f.fillStyle=css('--bg');
       for (const s of railStops) if (E.T[pt.node[s]] <= lim){f.beginPath(); f.arc(this.X(pt.xy[2*s]),this.Y(pt.xy[2*s+1]),2.6,0,7); f.fill(); f.stroke()}}
+    if (trip) this.drawTrip(f);
     const x=this.X(origin.x), y=this.Y(origin.y); f.fillStyle=css('--ink'); f.beginPath(); f.arc(x,y,7,0,7); f.fill(); f.fillStyle=css('--bg'); f.beginPath(); f.arc(x,y,3,0,7); f.fill();
     this.clk.textContent = Math.floor(lim/60) + ' min'; this.clk2.textContent = hm(dep + lim) + ' · left ' + hm(dep) + ' from ' + origin.label;
   }
 }
 let panes = [];
 function layout(){
-  const kinds = {pt:['pt'], car:['car'], both:['pt','car'], diff:['diff']}[viewMode];
+  const kinds = {pt:['pt'], car:['car'], both:['pt','car'], diff:['diff'], mode:['mode']}[viewMode];
   $('maps').innerHTML=''; $('maps').classList.toggle('two', kinds.length===2);
   panes = kinds.map(k => {const p = new Pane(k); $('maps').append(p.el);
     const z = document.createElement('div'); z.className='zoom'; z.innerHTML='<button aria-label="Zoom in">+</button><button aria-label="Zoom out">−</button>';
@@ -277,7 +330,8 @@ function layout(){
 function feed(){if(!res)return;
   for (const p of panes){
     if (p.kind==='pt') p.setData({E:res.pt, pal:TIME_PAL, bucket:e=>Math.min(44,Math.floor(res.pt.t0[e]/60))});
-    if (p.kind==='car') p.setData({E:res.car, pal:TIME_PAL, bucket:e=>Math.min(44,Math.floor(res.car.t0[e]/60))});
+    if (p.kind==='car') p.setData({E:res.car, pal:TIME_PAL, bucket:e=>Math.min(44,Math.floor(res.car.t0[e]/60)), ghost: res.C.park ? res.drive : null});
+    if (p.kind==='mode') p.setData({E:res.pt, pal:MODE_PAL, bucket:e=>{const T=res.P.T, u=net.u[e], v=net.v[e]; return res.P.mode[T[u]<=T[v]?u:v]}});
     if (p.kind==='diff') p.setData({E:res.best, pal:DIV_PAL, bucket:e=>{const a=res.pt.t0[e], b=res.car.t0[e];
       const d = a===Infinity ? -10 : b===Infinity ? 10 : Math.max(-10, Math.min(10, (b-a)/60)); return Math.round(-d)+10}});
   }}
@@ -289,6 +343,63 @@ function play(){cancelAnimationFrame(anim.raf); panes.forEach(p=>p.reset());
   anim.raf = requestAnimationFrame(step);
 }
 
+// ---------- trips ----------
+const MODES = [['Bus','#2f6fde'],['Trolley','#d49a00'],['Metro','#d62828'],['Tram','#12a37a'],['Suburban rail','#7b4fb3'],['Walk only','#9aa0a6']];
+const MODE_PAL = MODES.map(m=>m[1]);
+let dest = null, clickMode = 'start', trip = null;
+function chain(T, n){const edges=[]; let len=0, g=0; while (T.pe[n] >= 0 && g++ < 1e5){const e=T.pe[n]; edges.push(e); len+=net.len[e]; n = net.u[e]===n ? net.v[e] : net.u[e]} return {edges, len}}
+const stopName = s => meta.stopNames[s] || 'stop';
+function ptTrip(d){
+  const P=res.P, T=P.T; if (!(T[d] <= LIM)) return null;
+  const legs=[], last=chain(T, d), k=T.src[d];
+  if (k===0) return {total:T[d], legs:[{k:'walk', t:T[d], m:last.len, edges:last.edges}]};
+  let s = P.seedStop[k], g = 0;
+  legs.push({k:'walk', t:T[d]-(P.arr[s]-P.rel), m:last.len+pt.snap[s], edges:last.edges});
+  while (g++ < 40){const L = P.lab[s];
+    if (L===-1){const w=chain(P.walkOnly, pt.node[s]); legs.push({k:'walk', t:P.arr[s]-P.rel, m:w.len+pt.snap[s], edges:w.edges, to:s}); break}
+    if (L<=-2){const j=-(L+2); legs.push({k:'walk', t:P.arr[s]-P.arr[j], m:Math.hypot(pt.xy[2*s]-pt.xy[2*j], pt.xy[2*s+1]-pt.xy[2*j+1])*1.3, line:[j,s], to:s, transfer:true}); s=j; continue}
+    const tr=pt.trip[L], bc=P.board[tr], sa=pt.a[bc], stops=[sa];
+    for (let x=bc; x<=L; x++) if (pt.trip[x]===tr) stops.push(pt.b[x]);
+    legs.push({k:'ride', mode:pt.mode[tr], route:meta.routes[pt.route[tr]], t:pt.ta[L]-pt.td[bc], from:sa, to:s, stops});
+    const wait = pt.td[bc]-P.arr[sa]; if (wait > 0) legs.push({k:'wait', t:wait, at:sa});
+    s = sa}
+  return {total:T[d], legs:legs.reverse()};
+}
+function carTrip(){
+  const C=res.C;
+  if (!C.park){const [d]=nearestNode(dest.x, dest.y, carMask); if (!(C.T[d] <= LIM)) return null; const ch=chain(C.drive, d);
+    return {total:C.T[d], legs:[{k:'walk', t:C.od/WALK, m:C.od, edges:[], to:'car'}, {k:'drive', t:C.T[d]-C.od/WALK, m:ch.len, edges:ch.edges}]}}
+  const [d]=nearestNode(dest.x, dest.y, walkMask); if (!(C.T[d] <= LIM)) return null;
+  const k=C.T.src[d], w=chain(C.T, d);
+  if (k===0) return {total:C.T[d], legs:[{k:'walk', t:C.T[d], m:w.len, edges:w.edges, note:'Quicker on foot than by car'}]};
+  const pn=C.seedNode[k], dr=chain(C.drive, pn), start=C.od/WALK+120, srch=searchTime(pn);
+  return {total:C.T[d], legs:[{k:'walk', t:start, m:C.od, edges:[], to:'car'}, {k:'drive', t:C.drive[pn]-start, m:dr.len, edges:dr.edges},
+    {k:'park', t:srch}, {k:'walk', t:C.T[d]-C.drive[pn]-srch, m:w.len, edges:w.edges}]};
+}
+function showTrip(){
+  const [d] = nearestNode(dest.x, dest.y, walkMask);
+  trip = {pt: ptTrip(d), car: carTrip()};
+  const mn = t => t < 30 ? '<1 min' : Math.round(t/60)+' min';
+  const col = L => L.k==='ride' ? MODES[L.mode][1] : L.k==='drive' ? '#e8590c' : L.k==='park' ? '#f6a26b' : L.k==='wait' ? 'var(--line)' : '#9aa0a6';
+  const text = L => {
+    if (L.k==='walk') return L.note ? esc(L.note) + ` · ${Math.round(L.m)} m` : `Walk ${Math.round(L.m)} m` + (L.to==='car' ? ' to the car' : typeof L.to==='number' ? ` to ${esc(stopName(L.to))}` : ' to the destination');
+    if (L.k==='wait') return `Wait at ${esc(stopName(L.at))}`;
+    if (L.k==='ride') return `<span class="tag" style="background:${MODES[L.mode][1]}">${esc(L.route)}</span>${esc(stopName(L.from))} → ${esc(stopName(L.to))} · ${L.stops.length-1} stop${L.stops.length>2?'s':''}`;
+    if (L.k==='drive') return `Drive ${(L.m/1000).toFixed(1)} km`;
+    return 'Find a parking space';
+  };
+  const card = (name, T) => {
+    if (!T) return `<h3>${name}</h3><div class="tot no">Over 45 min</div><p class="note">Not reachable within 45 minutes from this start.</p>`;
+    let clock = dep;
+    const steps = T.legs.filter(L=>L.t>=1).map(L => {const row = `<li><span class="clk">${hm(clock)}</span><span>${text(L)}</span><span class="d">${mn(L.t)}</span></li>`; clock += L.t; return row}).join('');
+    return `<h3>${name}</h3><div class="tot">${Math.round(T.total/60)} min <span class="no" style="font-size:15px;font-weight:600">arrive ${hm(dep+T.total)}</span></div>
+      <div class="legs">${T.legs.map(L=>`<i style="width:${L.t/T.total*100}%;background:${col(L)}" title="${L.k}"></i>`).join('')}</div><ul class="steps">${steps}</ul>`;
+  };
+  $('tripPT').innerHTML = card('By public transport', trip.pt);
+  $('tripCar').innerHTML = card('By car', trip.car);
+  $('trip').hidden = false;
+}
+
 // ---------- stats ----------
 function km(T, lim, allow){let s=0;for (let e=0;e<net.E;e++){if(!(net.flag[e]&allow))continue;const a=T[net.u[e]],b=T[net.v[e]],w=net.len[e]/WALK||1;
   s+=Math.min(1,Math.max(0,(lim-a)/w)+Math.max(0,(lim-b)/w))*net.len[e]}return s/1000}
@@ -297,12 +408,12 @@ function near(T, m, mask){let best=Infinity; const xy=net.xy;
   for (let i=0;i<net.N;i++){if(!mask[i]||T[i]===Infinity)continue; const d=Math.hypot(xy[2*i]-m.x, xy[2*i+1]-m.y); if (d<250) best=Math.min(best, T[i]+d/WALK)}
   return best}
 function stats(){
-  const rows=[15,30,45].map(b=>({b, p:km(res.pt.T,b*60,1), c:km(res.car.T,b*60,6), w:km(res.walk,b*60,1)}));
+  const rows=[15,30,45].map(b=>({b, p:km(res.pt.T,b*60,1), c:km(res.car.T,b*60,res.C.park?1:6), w:km(res.walk,b*60,1)}));
   const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>Math.round(v).toLocaleString('en')+' km';
   $('bands').innerHTML=`<tr><th>Within</th><th><span class="dot" style="background:var(--c0)"></span>Transit</th><th><span class="dot" style="background:var(--car)"></span>Car</th><th>Walk only</th></tr>`+
     rows.map(r=>`<tr><td>${r.b} min</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
   const tm = t => t<=LIM ? Math.round(t/60)+' min' : 'over 45';
-  $('places').innerHTML='<tr><th>Place</th><th>Transit</th><th>Car</th></tr>'+meta.marks.map(m=>({m, a:near(res.pt.T,m,walkMask), b:near(res.car.T,m,carMask)}))
+  $('places').innerHTML='<tr><th>Place</th><th>Transit</th><th>Car</th></tr>'+meta.marks.map(m=>({m, a:near(res.pt.T,m,walkMask), b:near(res.car.T,m,res.C.park?walkMask:carMask)}))
     .sort((x,y)=>Math.min(x.a,x.b)-Math.min(y.a,y.b))
     .map(({m,a,b})=>`<tr><td>${esc(m.name)}</td><td class="${a<=b&&a<=LIM?'win':''} ${a<=LIM?'':'no'}">${tm(a)}</td><td class="${b<a&&b<=LIM?'win':''} ${b<=LIM?'':'no'}">${tm(b)}</td></tr>`).join('');
   $('carmodel').innerHTML='<tr><th>Road type</th><th>Free flow</th><th>Now (traffic)</th></tr>'+CLASS.map((n,i)=>`<tr><td>${n}</td><td>${FREE_KMH[i]} km/h</td><td>${Math.round(FREE_KMH[i]/res.mult[i])} km/h</td></tr>`).join('');
@@ -312,12 +423,14 @@ function run(){
   const P = routePT(), C = routeCar(), best = new Float64Array(net.N);
   for (let i=0;i<net.N;i++) best[i]=Math.min(P.T[i], C.T[i]);
   const mult = C.mult, carW = e => net.len[e]/(Math.max(FREE_KMH[net.cls[e]],8)/3.6)*mult[net.cls[e]];
-  res = {pt: edgeTimes(P.T, 1, e=>net.len[e]/WALK), car: edgeTimes(C.T, 6, carW), walk: P.walkOnly, mult};
+  res = {P, C, pt: edgeTimes(P.T, 1, e=>net.len[e]/WALK), walk: P.walkOnly, mult,
+    car: C.park ? edgeTimes(C.T, 1, e=>net.len[e]/WALK) : edgeTimes(C.T, 6, carW), drive: edgeTimes(C.drive, 6, carW)};
   res.best = edgeTimes(best, 7, e=>Math.min(net.len[e]/WALK, carW(e)));
-  stats(); title(); feed(); redraw(); play();
+  stats(); title(); feed(); if (dest) showTrip(); redraw(); play();
 }
 function title(){$('title').textContent = {pt:`How far does public transport take you in ${budget} minutes?`, car:`How far does a car take you in ${budget} minutes?`,
-  both:`Transit or car: how far in ${budget} minutes?`, diff:`Where is transit faster than driving, within ${budget} minutes?`}[viewMode]}
+  both:`Transit or car: how far in ${budget} minutes?`, diff:`Where is transit faster than driving, within ${budget} minutes?`,
+  mode:`Which vehicle gets you there, within ${budget} minutes?`}[viewMode]}
 
 // ---------- interaction ----------
 const ptrs = new Map(); let drag=null, moved=false;
@@ -330,7 +443,8 @@ $('maps').addEventListener('pointermove', ev => {if(!ptrs.has(ev.pointerId)||!dr
   if (moved){view.cx=drag.cx-dx/view.s; view.cy=drag.cy+dy/view.s; schedule()}});
 const up = ev => {const was=ptrs.has(ev.pointerId); ptrs.delete(ev.pointerId); if(!was||!drag)return;
   if (!moved && ptrs.size===0 && ev.type==='pointerup'){const p=drag.pane, r=p.el.getBoundingClientRect(), px=ev.clientX-r.left, py=ev.clientY-r.top;
-    origin={x:view.cx+(px-p.W/2)/view.s, y:view.cy-(py-p.H/2)/view.s, label:'your pin'}; run()}
+    const pick={x:view.cx+(px-p.W/2)/view.s, y:view.cy-(py-p.H/2)/view.s};
+    if (clickMode==='trip'){dest=pick; showTrip(); panes.forEach(q=>q.frame(anim.t))} else {origin={...pick, label:'your pin'}; run()}}
   if (ptrs.size===0) drag=null};
 $('maps').addEventListener('pointerup', up); $('maps').addEventListener('pointercancel', up);
 $('maps').addEventListener('wheel', ev => {ev.preventDefault(); const p=paneAt(ev), r=p.el.getBoundingClientRect(); zoomAt(Math.exp(-ev.deltaY*0.0015), ev.clientX-r.left, ev.clientY-r.top, p)}, {passive:false});
@@ -340,6 +454,7 @@ let pend=0; function schedule(){if(pend)return; pend=requestAnimationFrame(()=>{
 const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEventListener('click', () => {
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
 group('[data-b]', b => {budget=+b.dataset.b; title(); play()});
+group('[data-c]', b => {clickMode=b.dataset.c});
 group('[data-v]', b => {viewMode=b.dataset.v; title(); if(net){layout(); play()}});
 $('dep').addEventListener('change', ev => {dep=+ev.target.value; run()});
 $('traffic').addEventListener('change', run); $('park').addEventListener('change', run);
