@@ -9,3 +9,5 @@ prep/*.log
 .claude/
 __pycache__/
 .DS_Store
+.vercel/
+.vercel
