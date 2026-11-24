@@ -35,6 +35,10 @@ python3 -m http.server 8765 -d site
 
 Then open http://localhost:8765. The page needs no build step: `site/data/` already holds the packed street network and timetables. `site/about.html` explains why the map was made and who made it.
 
+## Deploy
+
+The site is hosted on Vercel and every push to `main` deploys it automatically to https://athens-transit-reach.vercel.app. `vercel.json` serves `site/` as static files, with no build step.
+
 ## Rebuild the data
 
 ```bash
