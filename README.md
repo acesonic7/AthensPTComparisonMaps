@@ -39,6 +39,8 @@ Then open http://localhost:8765. The page needs no build step: `site/data/` alre
 
 The site is hosted on Vercel and every push to `main` deploys it automatically to https://athens-transit-reach.vercel.app. `vercel.json` serves `site/` as static files, with no build step.
 
+The social preview image `site/og.jpg` is a screenshot of the page in poster mode (`/?poster`). Re-render it with `prep/render_og.sh` while the site is served locally on port 8766.
+
 ## Rebuild the data
 
 ```bash

@@ -12,10 +12,23 @@
 <meta property="og:description" content="How far can you get in 15, 30 or 45 minutes from any point in Athens? Street-by-street travel times by public transport and by car, to show where transit serves the city well, where it falls short, and what traffic costs.">
 <meta property="og:locale" content="en_GB">
 <meta property="og:site_name" content="Athens transit reach">
-<meta name="twitter:card" content="summary">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="How far can you reach in 45 minutes? Athens by public transport and by car">
 <meta name="twitter:description" content="How far can you get in 15, 30 or 45 minutes from any point in Athens? Street-by-street travel times by public transport and by car, to show where transit serves the city well, where it falls short, and what traffic costs.">
 <link rel="author" href="https://www.jtsouros.site/">
+<meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0f1115" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="index,follow">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:image" content="https://athens-transit-reach.vercel.app/og.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Map of Athens: streets coloured by public transport travel time from Syntagma, up to 45 minutes">
+<meta name="twitter:image" content="https://athens-transit-reach.vercel.app/og.jpg">
+<meta name="twitter:image:alt" content="Map of Athens: streets coloured by public transport travel time from Syntagma, up to 45 minutes">
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "WebApplication", "name": "Athens transit reach", "url": "https://athens-transit-reach.vercel.app/", "description": "Street-by-street map of how far you can get in 15, 30 or 45 minutes from any point in Athens by public transport (bus, trolley, metro, tram, suburban rail) and by car, at any time of a working day.", "applicationCategory": "Reference", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "inLanguage": "en", "isAccessibleForFree": true, "image": "https://athens-transit-reach.vercel.app/og.jpg", "keywords": "Athens, public transport, accessibility, isochrones, traffic congestion, night buses, transport equity", "spatialCoverage": {"@type": "Place", "name": "Athens, Attica, Greece", "geo": {"@type": "GeoCoordinates", "latitude": 37.9755, "longitude": 23.7348}}, "author": {"@type": "Person", "name": "Ioannis Tsouros", "url": "https://www.jtsouros.site/", "jobTitle": "Transportation researcher", "affiliation": {"@type": "Organization", "name": "MobyX"}, "sameAs": ["https://github.com/acesonic7", "https://www.linkedin.com/in/ioannis-tsouros-ba582243", "https://scholar.google.com/citations?user=nahTqW0AAAAJ"]}, "creator": {"@type": "Person", "name": "Ioannis Tsouros", "url": "https://www.jtsouros.site/", "jobTitle": "Transportation researcher", "affiliation": {"@type": "Organization", "name": "MobyX"}, "sameAs": ["https://github.com/acesonic7", "https://www.linkedin.com/in/ioannis-tsouros-ba582243", "https://scholar.google.com/citations?user=nahTqW0AAAAJ"]}, "license": "https://opendatacommons.org/licenses/odbl/1-0/", "codeRepository": "https://github.com/acesonic7/AthensPTComparisonMaps"}</script>
 <link rel="canonical" href="https://athens-transit-reach.vercel.app/">
 <meta property="og:url" content="https://athens-transit-reach.vercel.app/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,6 +120,15 @@ details td,details th{font-size:13px;padding:3px 6px}
 .foot{padding:18px max(3vw,16px) 26px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
 .foot p{margin:0 0 4px}.foot b{color:var(--ink)}.foot a{color:inherit;text-underline-offset:3px}.foot a:hover{color:var(--ink)}
 .foot .small{font-size:13px}
+/* poster mode (?poster): a 1200×630 still used as the social preview image */
+body.poster header,body.poster .below,body.poster #trip,body.poster .foot,body.poster .mapctl,body.poster .zoom,body.poster .clock{display:none}
+body.poster .maps{border:0}body.poster .pane{height:100vh;min-height:0}
+.pcard{position:absolute;left:44px;top:44px;width:430px;z-index:3;background:var(--bg);padding:26px 28px 24px;border-radius:16px;box-shadow:0 2px 18px rgb(0 0 0/.12)}
+.pcard h1{font-size:46px;line-height:1.02;margin:0 0 12px}
+.pcard p{margin:0 0 14px;font-size:19px;line-height:1.35;color:var(--mute)}
+.pcard .ramp{height:12px;border-radius:6px}.pcard .ticks{font-size:15px;color:var(--mute)}
+.pcard .url{margin:16px 0 0;font-weight:700;color:var(--ink);font-size:17px}
+body.poster .legend{display:none}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.seg.big button{font-size:15px;padding:0 13px;min-height:48px}.mapctl{left:12px;right:auto;bottom:auto;top:112px}.legend{width:calc(100% - 32px)}}
 </style>
@@ -403,7 +425,7 @@ function feed(){if(!res)return;
   }}
 function redraw(){panes.forEach(p => {p.drawBase(); p.reset(); p.frame(anim.t)})}
 function play(){cancelAnimationFrame(anim.raf); panes.forEach(p=>p.reset());
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches){anim.t=budget*60; panes.forEach(p=>p.frame(anim.t)); return}
+  if (POSTER || matchMedia('(prefers-reduced-motion: reduce)').matches){anim.t=budget*60; panes.forEach(p=>p.frame(anim.t)); return}
   anim.start = performance.now();
   const step = now => {anim.t = (now-anim.start)/SIM_MIN_MS*60; panes.forEach(p=>p.frame(anim.t)); if (anim.t < budget*60) anim.raf = requestAnimationFrame(step)};
   anim.raf = requestAnimationFrame(step);
@@ -555,9 +577,15 @@ const ro = new ResizeObserver(() => {if(!net||!panes.length)return; panes.forEac
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => net && redraw());
 new MutationObserver(() => net && redraw()).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
 
+const POSTER = new URLSearchParams(location.search).has('poster');
+if (POSTER){document.body.classList.add('poster');
+  const c=document.createElement('div'); c.className='pcard';
+  c.innerHTML='<h1>How far can you reach in 45 minutes?</h1><p>Athens by public transport, street by street. Compared with the car, at any hour of a working day.</p><div class="ramp"></div><div class="ticks"><span>0</span><span>15</span><span>30</span><span>45 min</span></div><p class="url">athens-transit-reach.vercel.app</p>';
+  document.querySelector('.mapwrap').append(c)}
 load().then(() => {
   syncPresets(); masks(); layout();
   const p = panes[0]; view.s = Math.min(p.W/26000, p.H/22000);
+  if (POSTER){view.s = p.H/19000; view.cx = -7800; view.cy = 2600}
   run();
 }).catch(err => {$('status').textContent = 'Could not load the network data: ' + err.message});
 }
