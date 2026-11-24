@@ -14,6 +14,17 @@ Click anywhere to set the origin. Streets fill in minute by minute, coloured by 
 
 Switch to **Click shows trip** and click a destination to see both journeys step by step, with times, and their routes drawn on the map.
 
+## Why
+
+Whether a job, a school or a hospital is "close" depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This project makes that visible street by street. It aims to:
+
+- **Show how accessible the city is by public transport**: how much of Athens buses, trolleys, metro, tram and suburban rail put within 15, 30 or 45 minutes.
+- **Find the areas public transport serves poorly**: neighbourhoods where transit adds little over walking, or where the car is far quicker.
+- **Put traffic congestion in context**: comparing door-to-door times, parking included, shows where transit already competes with the car and where it does not yet.
+- **Stay open**: anyone can check the method, rerun it with new timetables, or adapt it to another city.
+
+It is a planning sketch, not a journey planner: transit uses scheduled times, and car times come from a traffic model rather than live data.
+
 ## Run it
 
 ```bash
@@ -64,6 +75,14 @@ The service days are set at the top of `prep/build_data.py` (`BUS_SERVICE`, `RAI
 - The OASA/STASY timetables are the summer 2026 ones; the Proastiakos timetable is for 1 Dec 2026.
 - Bus times are scheduled times, not real running times.
 - Car times come from a model that hasn't been checked against measured traffic.
+
+## Author
+
+**Dr Ioannis Tsouros**: transportation researcher, Lead Scientist and co-founder of MobyX, and external scientist at the Transportation and Decision-Making Laboratory, University of the Aegean.
+
+[Website](https://www.jtsouros.site/) · [GitHub](https://github.com/acesonic7) · [LinkedIn](https://www.linkedin.com/in/ioannis-tsouros-ba582243) · [Google Scholar](https://scholar.google.com/citations?user=nahTqW0AAAAJ&hl=en)
+
+Corrections and ideas are welcome as [issues](https://github.com/acesonic7/AthensPTComparisonMaps/issues).
 
 ## Data sources and licences
 

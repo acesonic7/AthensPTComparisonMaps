@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Athens transit reach</title>
+<meta name="description" content="How far can you get in 15, 30 or 45 minutes from any point in Athens? Street-by-street travel times by public transport and by car, to show where transit serves the city well, where it falls short, and what traffic costs.">
+<meta name="author" content="Ioannis Tsouros">
+<meta name="keywords" content="Athens, public transport, accessibility, isochrones, traffic congestion, OASA, STASY, metro, Proastiakos, transport equity">
+<meta property="og:type" content="website">
+<meta property="og:title" content="How far can you reach in 45 minutes? Athens by public transport and by car">
+<meta property="og:description" content="How far can you get in 15, 30 or 45 minutes from any point in Athens? Street-by-street travel times by public transport and by car, to show where transit serves the city well, where it falls short, and what traffic costs.">
+<meta property="og:locale" content="en_GB">
+<meta property="og:site_name" content="Athens transit reach">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="How far can you reach in 45 minutes? Athens by public transport and by car">
+<meta name="twitter:description" content="How far can you get in 15, 30 or 45 minutes from any point in Athens? Street-by-street travel times by public transport and by car, to show where transit serves the city well, where it falls short, and what traffic costs.">
+<link rel="author" href="https://www.jtsouros.site/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
@@ -86,6 +98,22 @@ details td,details th{font-size:13px;padding:3px 6px}
 .steps .d{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
 .tag{display:inline-block;padding:0 6px;border-radius:5px;color:#fff;font-weight:700;font-size:13px;margin-right:4px}
 @media(max-width:700px){#trip{grid-template-columns:minmax(0,1fr)}}
+.about{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);padding:36px max(3vw,16px) 28px;border-top:1px solid var(--line);background:var(--panel)}
+.about h2{font-size:clamp(22px,2.4vw,28px);line-height:1.15;margin:0 0 12px}
+.about p{margin:0 0 12px;max-width:68ch}
+.aims{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px;max-width:68ch}
+.aims li{padding-left:14px;border-left:3px solid var(--c0)}
+.aims li:nth-child(2){border-color:var(--c1)}.aims li:nth-child(3){border-color:var(--c2)}.aims li:nth-child(4){border-color:var(--mute)}
+.aims b{display:block}
+.who .name{font-size:20px;font-weight:800;margin:0}
+.who .role{color:var(--mute);margin:2px 0 14px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;background:var(--bg)}
+.links a:hover{border-color:var(--ink)}
+.links a:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
+footer{padding:16px max(3vw,16px) 28px;font-size:13px;color:var(--mute);background:var(--panel)}
+footer a{color:inherit}
+@media(max-width:800px){.about{grid-template-columns:minmax(0,1fr)}}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.seg.big button{font-size:15px;padding:0 13px;min-height:48px}.mapctl{left:12px;right:auto;bottom:auto;top:112px}.legend{width:calc(100% - 32px)}}
 </style>
@@ -136,6 +164,33 @@ details td,details th{font-size:13px;padding:3px 6px}
     <table id="places"></table>
   </div>
 </section>
+<section class="about" aria-labelledby="why">
+  <div>
+    <h2 id="why">Why this map</h2>
+    <p>Whether a job, a school or a hospital is “close” depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This map makes that visible street by street, from any point you choose.</p>
+    <ul class="aims">
+      <li><b>Show how accessible the city is by public transport</b>How much of Athens buses, trolleys, metro, tram and suburban rail put within 15, 30 or 45 minutes, so the network can be judged by what it lets people reach.</li>
+      <li><b>Find the areas public transport serves poorly</b>Neighbourhoods where transit adds little over walking, or where the car is far quicker. The “Which is faster” and “Main mode” views help spot them.</li>
+      <li><b>Put traffic congestion in context</b>Athens' daily congestion is a constant topic. Comparing door-to-door times, including the hunt for a parking space, shows where transit already competes with the car and where it does not yet.</li>
+      <li><b>Keep it open</b>The code and data pipeline are open source, so anyone can check the method, rerun it with new timetables, or adapt it to another city.</li>
+    </ul>
+    <p style="margin-top:16px" class="no">A planning sketch, not a journey planner: transit uses scheduled times, and car times come from a traffic model rather than live data.</p>
+  </div>
+  <div class="who">
+    <h2>Who made it</h2>
+    <p class="name">Dr Ioannis Tsouros</p>
+    <p class="role">Transportation researcher. Lead Scientist and co-founder of MobyX, and external scientist at the Transportation and Decision-Making Laboratory, University of the Aegean.</p>
+    <p>My work is on how people travel and how policy can change it: travel behaviour, new mobility services, mobility data and transport equity.</p>
+    <ul class="links">
+      <li><a href="https://www.jtsouros.site/">Website</a></li>
+      <li><a href="https://github.com/acesonic7">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
+      <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
+    </ul>
+    <p>Source code, data pipeline and issues: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Corrections and ideas are welcome there.</p>
+  </div>
+</section>
+<footer>Street network © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Timetables: OASA and STASY (data.gov.gr), Hellenic Train via the community feed at jbb.ghsq.de. © 2026 Ioannis Tsouros.</footer>
 <script>
 {
 const WALK = 1.33, BOARD = 60, LIM = 45*60, SIM_MIN_MS = 190;
