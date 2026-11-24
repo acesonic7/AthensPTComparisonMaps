@@ -32,6 +32,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Commissioner,s
 header{padding:22px max(3vw,16px) 16px;display:grid;gap:12px}
 h1{font-size:clamp(26px,3.4vw,40px);line-height:1.05;margin:0;font-weight:800;text-wrap:balance}
 .sub{color:var(--mute);margin:6px 0 0;font-size:15px}
+.why{color:var(--ink);font-weight:600;white-space:nowrap;text-underline-offset:3px}
 .ctl{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .seg{display:flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex-wrap:wrap}
 .seg button{border:0;border-right:1px solid var(--line);border-radius:0}.seg button:last-child{border-right:0}
@@ -47,6 +48,9 @@ button:focus-visible,select:focus-visible{outline:3px solid var(--c0);outline-of
 /* tier 3: assumptions */
 .opts{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:end;padding-top:10px;border-top:1px solid var(--line)}
 .opts label{display:grid;gap:2px;font-size:13px;color:var(--mute)}
+.opts label[hidden]{display:none}
+.presets button{min-height:40px;font-size:14px;font-weight:500;background:transparent;padding:0 12px}
+.presets button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
 .opts select{min-height:40px;font-size:14px;font-weight:500;background:transparent;padding:0 10px}
 .hint{margin:0;min-height:3em;font-size:15px;color:var(--mute);max-width:80ch}
 .hint b{color:var(--ink);font-weight:700;margin-right:6px}
@@ -98,22 +102,9 @@ details td,details th{font-size:13px;padding:3px 6px}
 .steps .d{font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:600}
 .tag{display:inline-block;padding:0 6px;border-radius:5px;color:#fff;font-weight:700;font-size:13px;margin-right:4px}
 @media(max-width:700px){#trip{grid-template-columns:minmax(0,1fr)}}
-.about{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);padding:36px max(3vw,16px) 28px;border-top:1px solid var(--line);background:var(--panel)}
-.about h2{font-size:clamp(22px,2.4vw,28px);line-height:1.15;margin:0 0 12px}
-.about p{margin:0 0 12px;max-width:68ch}
-.aims{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px;max-width:68ch}
-.aims li{padding-left:14px;border-left:3px solid var(--c0)}
-.aims li:nth-child(2){border-color:var(--c1)}.aims li:nth-child(3){border-color:var(--c2)}.aims li:nth-child(4){border-color:var(--mute)}
-.aims b{display:block}
-.who .name{font-size:20px;font-weight:800;margin:0}
-.who .role{color:var(--mute);margin:2px 0 14px}
-.links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
-.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;background:var(--bg)}
-.links a:hover{border-color:var(--ink)}
-.links a:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
-footer{padding:16px max(3vw,16px) 28px;font-size:13px;color:var(--mute);background:var(--panel)}
-footer a{color:inherit}
-@media(max-width:800px){.about{grid-template-columns:minmax(0,1fr)}}
+.foot{padding:18px max(3vw,16px) 26px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
+.foot p{margin:0 0 4px}.foot b{color:var(--ink)}.foot a{color:inherit;text-underline-offset:3px}.foot a:hover{color:var(--ink)}
+.foot .small{font-size:13px}
 @media(max-width:900px){.maps.two{grid-template-columns:minmax(0,1fr)}.maps.two .pane{height:52vh;min-height:340px}.maps.two .pane+.pane{border-left:0;border-top:1px solid var(--line)}}
 @media(max-width:700px){.below{grid-template-columns:minmax(0,1fr)}.seg.big button{font-size:15px;padding:0 13px;min-height:48px}.mapctl{left:12px;right:auto;bottom:auto;top:112px}.legend{width:calc(100% - 32px)}}
 </style>
@@ -122,10 +113,10 @@ footer a{color:inherit}
 <header>
   <div>
     <h1 id="title">How far can you reach in 45 minutes?</h1>
-    <p class="sub">From any point in Athens, by public transport or by car on a weekday morning. Click the map to move the start.</p>
+    <p class="sub">From any point in Athens, by public transport or by car, at any time of a working day. Click the map to move the start. <a href="about.html" class="why">Why this map →</a></p>
   </div>
   <div class="seg big" role="group" aria-label="Map view">
-    <button data-v="pt" aria-pressed="true" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-hint="Each street coloured by the vehicle you spend longest on to reach it.">Main mode</button>
+    <button data-v="pt" aria-pressed="true" data-hint="Travel time to every street on foot plus bus, trolley, metro, tram and suburban rail, using real timetables.">Transit</button><button data-v="car" data-hint="Travel time by car in modelled traffic. Faint streets: the car drives past. Solid: you have parked and walked there.">Car</button><button data-v="both" data-hint="Transit and car maps next to each other. Pan and zoom move both.">Side by side</button><button data-v="diff" data-hint="Blue streets: transit gets there first. Orange: the car does. Grey: about the same.">Which is faster</button><button data-v="mode" data-hint="Public transport only: each street coloured by the bus, trolley, metro, tram or train you spend longest on to reach it.">Transit by mode</button>
   </div>
   <p class="hint" id="hint" aria-live="polite"></p>
   <div class="row">
@@ -136,9 +127,12 @@ footer a{color:inherit}
     <button id="play" class="ghost" data-hint="Play the spread again from minute zero.">↻ Replay</button>
   </div>
   <div class="opts">
-    <label data-hint="When you set off. Changes which buses and trains you can catch and how busy the roads are.">Leave at<select id="dep"></select></label>
-    <label data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual.">Traffic<select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
-    <label data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination.">Car parking<select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
+    <label data-hint="When you set off, from 05:00 to 04:45 the following night. Changes which buses and trains you can catch and how busy the roads are.">Leave at<select id="dep"></select></label>
+    <div class="seg presets" role="group" aria-label="Quick departure times">
+      <button data-t="28800" data-hint="08:00, the morning rush.">Morning peak</button><button data-t="46800" data-hint="13:00, between the peaks.">Midday</button><button data-t="68400" data-hint="19:00, the evening.">Evening</button><button data-t="93600" data-hint="02:00, when only a few night buses run. Metro and tram have stopped.">Night</button>
+    </div>
+    <label data-car data-hint="Typical: usual weekday traffic for that hour. Free-flowing: empty roads. Bad day: heavier than usual.">Traffic<select id="traffic"><option value="typ" selected>Typical for that hour</option><option value="free">Free-flowing</option><option value="heavy">Bad day</option></select></label>
+    <label data-car data-hint="Include: find a space near where you stop, then walk to the door. Ignore: the car stops right at the destination.">Car parking<select id="park"><option value="1" selected>Include search + walk</option><option value="0">Ignore (door to door)</option></select></label>
   </div>
 </header>
 <div class="mapwrap">
@@ -154,7 +148,7 @@ footer a{color:inherit}
     <table id="bands"></table>
     <p class="note" id="note"></p>
     <details><summary>How car travel times are modelled</summary>
-      <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that peaks around 08:00–09:00 and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
+      <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that follows a working day (morning peak 08:00–09:00, afternoon peak 14:30–15:30, a smaller evening peak, light traffic late at night) and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
       <table id="carmodel"></table>
       <p>With parking on, the trip is: 2 min to reach the car, drive to a parking spot, spend time finding a space there (8 min within 2 km of Syntagma, 5 min within 4 km, 3 min within 8 km, 1 min further out), then walk to the destination. Parking a little further away and walking is allowed, and so is not taking the car at all. On the car map, faint streets are ones the car drives past; solid streets are ones you have actually arrived at.</p>
     </details>
@@ -164,45 +158,20 @@ footer a{color:inherit}
     <table id="places"></table>
   </div>
 </section>
-<section class="about" aria-labelledby="why">
-  <div>
-    <h2 id="why">Why this map</h2>
-    <p>Whether a job, a school or a hospital is “close” depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This map makes that visible street by street, from any point you choose.</p>
-    <ul class="aims">
-      <li><b>Show how accessible the city is by public transport</b>How much of Athens buses, trolleys, metro, tram and suburban rail put within 15, 30 or 45 minutes, so the network can be judged by what it lets people reach.</li>
-      <li><b>Find the areas public transport serves poorly</b>Neighbourhoods where transit adds little over walking, or where the car is far quicker. The “Which is faster” and “Main mode” views help spot them.</li>
-      <li><b>Put traffic congestion in context</b>Athens' daily congestion is a constant topic. Comparing door-to-door times, including the hunt for a parking space, shows where transit already competes with the car and where it does not yet.</li>
-      <li><b>Keep it open</b>The code and data pipeline are open source, so anyone can check the method, rerun it with new timetables, or adapt it to another city.</li>
-    </ul>
-    <p style="margin-top:16px" class="no">A planning sketch, not a journey planner: transit uses scheduled times, and car times come from a traffic model rather than live data.</p>
-  </div>
-  <div class="who">
-    <h2>Who made it</h2>
-    <p class="name">Dr Ioannis Tsouros</p>
-    <p class="role">Transportation researcher. Lead Scientist and co-founder of MobyX, and external scientist at the Transportation and Decision-Making Laboratory, University of the Aegean.</p>
-    <p>My work is on how people travel and how policy can change it: travel behaviour, new mobility services, mobility data and transport equity.</p>
-    <ul class="links">
-      <li><a href="https://www.jtsouros.site/">Website</a></li>
-      <li><a href="https://github.com/acesonic7">GitHub</a></li>
-      <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
-      <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
-    </ul>
-    <p>Source code, data pipeline and issues: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Corrections and ideas are welcome there.</p>
-  </div>
-</section>
-<footer>Street network © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> (ODbL). Timetables: OASA and STASY (data.gov.gr), Hellenic Train via the community feed at jbb.ghsq.de. © 2026 Ioannis Tsouros.</footer>
+<footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a> · <a href="about.html">About this map</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
 <script>
 {
 const WALK = 1.33, BOARD = 60, LIM = 45*60, SIM_MIN_MS = 190;
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const hm = s => String(Math.floor(s/3600)).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0');
+const hm = s => String(Math.floor(s/3600)%24).padStart(2,'0')+':'+String(Math.floor(s/60)%60).padStart(2,'0');
 // car model: class 0 motorway,1 trunk,2 primary,3 secondary,4 tertiary,5 residential,6 living street,7 pedestrian
 const CLASS = ['Motorway','Trunk road','Primary','Secondary','Tertiary','Residential','Living street'];
 const FREE_KMH = [95, 65, 45, 38, 32, 25, 12, 0];
 const PEAK_MULT = [1.7, 1.8, 1.8, 1.7, 1.5, 1.3, 1.1, 1];
 const JUNC_S = [0, 4, 6, 5, 4, 2, 1, 0];
-const PROFILE = [[6.5,.25],[7,.5],[7.5,.85],[8,1],[8.75,1],[9.25,.85],[10,.6],[11,.5]];
+// share of peak congestion by hour of a working day (morning peak 08–09, afternoon peak 14:30–15:30, evening 18–19)
+const PROFILE = [[0,.05],[5,.05],[6,.15],[6.5,.3],[7,.55],[7.5,.85],[8,1],[9,.95],[9.5,.8],[10,.6],[11,.55],[12.5,.6],[13.5,.75],[14.5,.9],[15.5,.85],[16.5,.7],[17.5,.75],[19,.8],[20,.6],[21,.4],[22,.25],[23,.15],[24.5,.05]];
 let net, pt, meta, adjOff, adjE, origin = {x:0, y:0, label:'Syntagma'}, dep = 8*3600, budget = 45, viewMode = 'pt';
 let res = null, view = {cx:0, cy:2000, s:0.05}, anim = {t:0, start:0, raf:0}, railStops = [];
 
@@ -216,20 +185,39 @@ async function load(){
   net.len = new Float32Array(nb, o, E); o += 4*E; net.off = new Uint32Array(nb, o, E+1); o += 4*(E+1);
   net.pts = new Float32Array(nb, o, 2*P); o += 8*P;
   net.cls = new Uint8Array(nb, o, E); o += E; net.flag = new Uint8Array(nb, o, E);
-  h = new Uint32Array(pb, 0, 4); o = 16; const [S, C, TR, F] = h;
-  pt = {S, C, TR, xy:new Float32Array(pb, o, 2*S)}; o += 8*S;
+  h = new Uint32Array(pb, 0, 3); o = 12; const [S, TR, F] = h;
+  pt = {S, TR, xy:new Float32Array(pb, o, 2*S)}; o += 8*S;
   pt.node = new Uint32Array(pb, o, S); o += 4*S; pt.snap = new Float32Array(pb, o, S); o += 4*S;
-  pt.a = new Uint32Array(pb, o, C); o += 4*C; pt.b = new Uint32Array(pb, o, C); o += 4*C; pt.trip = new Uint32Array(pb, o, C); o += 4*C;
-  pt.td = new Uint16Array(pb, o, C); o += 2*C; pt.ta = new Uint16Array(pb, o, C); o += 2*C;
+  pt.foff = new Uint32Array(pb, o, S+1); o += 4*(S+1); pt.fto = new Uint32Array(pb, o, F); o += 4*F; pt.fd = new Float32Array(pb, o, F); o += 4*F;
+  pt.route = new Uint16Array(pb, o, TR); o += 2*TR; o += (4 - (2*TR) % 4) % 4;
   pt.mode = new Uint8Array(pb, o, TR); o += TR; o += (4 - TR % 4) % 4;
-  pt.foff = new Uint32Array(pb, o, S+1); o += 4*(S+1); pt.fto = new Uint32Array(pb, o, F); o += 4*F; pt.fd = new Float32Array(pb, o, F); o += 4*F; pt.route = new Uint16Array(pb, o, TR);
+  pt.rail = new Uint8Array(pb, o, S);
   const deg = new Uint32Array(N+1);
   for (let e=0;e<E;e++){deg[net.u[e]+1]++;deg[net.v[e]+1]++}
   for (let i=0;i<N;i++) deg[i+1]+=deg[i];
   adjOff = deg.slice(); adjE = new Uint32Array(2*E); const fill = deg.slice();
   for (let e=0;e<E;e++){adjE[fill[net.u[e]]++]=e;adjE[fill[net.v[e]]++]=e}
-  for (let t=meta.tMin; t<=meta.tMax-45*60; t+=15*60){const op=document.createElement('option');op.value=t;op.textContent=hm(t);if(t===dep)op.selected=true;$('dep').append(op)}
-  const rs = new Set(); for (let c=0;c<C;c++) if (pt.mode[pt.trip[c]]>=2){rs.add(pt.a[c]);rs.add(pt.b[c])} railStops=[...rs];
+  const day = document.createElement('optgroup'), night = document.createElement('optgroup');
+  day.label = 'Day'; night.label = 'Night (after midnight)';
+  for (let t=meta.depFirst; t<=meta.depLast; t+=15*60){const op=document.createElement('option'); op.value=t; op.textContent=hm(t); if(t===dep) op.selected=true; (t>=24*3600 ? night : day).append(op)}
+  $('dep').append(day, night);
+  railStops = []; for (let i=0;i<S;i++) if (pt.rail[i]) railStops.push(i);
+}
+
+// ---------- timetable chunks (one file per departure hour) ----------
+const chunks = new Map(); let cs = null, csKey = '';
+function chunk(h){
+  if (!chunks.has(h)) chunks.set(h, fetch(`data/conn/h${String(h).padStart(2,'0')}.b64.json`).then(r => r.ok ? r.json() : null).then(b => {
+    if (!b) return null; const buf = Uint8Array.from(atob(b), c=>c.charCodeAt(0)).buffer, n = new Uint32Array(buf, 0, 1)[0];
+    const g = k => new Uint16Array(buf, 4 + 2*n*k, n); return {n, a:g(0), b:g(1), trip:g(2), td:g(3), ta:g(4)}}));
+  return chunks.get(h);
+}
+async function loadConns(){
+  const h0 = Math.floor(dep/3600), h1 = Math.floor((dep+LIM)/3600), key = h0+'-'+h1; if (key === csKey) return;
+  const parts = []; for (let h=h0; h<=h1; h++){const c = await chunk(h); if (c) parts.push(c)}
+  const C = parts.reduce((s,p)=>s+p.n, 0), out = {C, a:new Uint16Array(C), b:new Uint16Array(C), trip:new Uint16Array(C), td:new Int32Array(C), ta:new Int32Array(C)};
+  let o = 0; for (const p of parts){out.a.set(p.a,o); out.b.set(p.b,o); out.trip.set(p.trip,o); for (let i=0;i<p.n;i++){out.td[o+i]=p.td[i]*2; out.ta[o+i]=p.ta[i]*2} o += p.n}
+  cs = out; csKey = key;
 }
 
 // ---------- routing ----------
@@ -258,13 +246,13 @@ function routePT(){
   // lab: -1 walked from origin, >=0 alighted from connection, <=-2 footpath from stop -(lab+2)
   const lab = new Int32Array(pt.S).fill(-1), board = new Int32Array(pt.TR).fill(-1), mm = new Uint8Array(pt.S).fill(5), md = new Float64Array(pt.S);
   for (let s=0;s<pt.S;s++){if (pt.snap[s] > 400) continue; const w = walkOnly[pt.node[s]]; if (w < Infinity) arr[s] = rel + w + pt.snap[s]/WALK}
-  let lo=0, hi=pt.C; while(lo<hi){const m=(lo+hi)>>1; if(pt.td[m] < rel) lo=m+1; else hi=m}
-  for (let c=lo; c<pt.C; c++){const td = pt.td[c]; if (td > rel + LIM) break;
-    const tr = pt.trip[c];
-    if (!onTrip[tr]){ if (arr[pt.a[c]] + BOARD > td) continue; onTrip[tr] = 1; board[tr] = c }
-    const b = pt.b[c], ta = pt.ta[c];
+  let lo=0, hi=cs.C; while(lo<hi){const m=(lo+hi)>>1; if(cs.td[m] < rel) lo=m+1; else hi=m}
+  for (let c=lo; c<cs.C; c++){const td = cs.td[c]; if (td > rel + LIM) break;
+    const tr = cs.trip[c];
+    if (!onTrip[tr]){ if (arr[cs.a[c]] + BOARD > td) continue; onTrip[tr] = 1; board[tr] = c }
+    const b = cs.b[c], ta = cs.ta[c];
     if (ta < arr[b]){arr[b] = ta; lab[b] = c;
-      const bc = board[tr], sa = pt.a[bc], ride = ta - pt.td[bc];
+      const bc = board[tr], sa = cs.a[bc], ride = ta - cs.td[bc];
       if (ride > md[sa]){mm[b] = pt.mode[tr]; md[b] = ride} else {mm[b] = mm[sa]; md[b] = md[sa]}
       for (let f=pt.foff[b]; f<pt.foff[b+1]; f++){const j=pt.fto[f], tj = ta + pt.fd[f]/WALK; if (tj < arr[j]){arr[j] = tj; lab[j] = -(b+2); mm[j] = mm[b]; md[j] = md[b]}}}}
   const seeds = [[o, t0]], seedStop = [-1];
@@ -319,12 +307,12 @@ const css = n => {probe.style.color = `var(${n})`; return getComputedStyle(probe
 class Pane {
   constructor(kind){
     this.kind = kind; this.el = document.createElement('div'); this.el.className = 'pane';
-    const legend = kind==='mode' ? `<div class="chips">${MODES.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join('')}</div><div class="lnote">Vehicle you spend longest on</div>`
+    const legend = kind==='mode' ? `<div class="chips">${MODES.map(([n,c])=>`<span><span class="dot" style="background:${c}"></span>${n}</span>`).join('')}</div><div class="lnote">Public transport: vehicle you spend longest on</div>`
       : `<div class="ramp ${kind==='diff'?'div':''}"></div><div class="ticks">${kind==='diff'?'<span>Transit 10+ min faster</span><span>same</span><span>Car 10+ min faster</span>':'<span>0</span><span>15</span><span>30</span><span>45 min</span>'}</div>`
         + (kind==='car' ? '<div class="lnote" data-park>Faint: car driving past · Solid: parked and arrived</div>' : '');
     this.el.innerHTML = `<canvas></canvas><canvas></canvas><canvas></canvas><canvas></canvas><div class="clock"><em></em><b>0 min</b><span></span></div><div class="legend">${legend}</div>`;
     [this.base, this.ghost, this.done, this.front] = [...this.el.querySelectorAll('canvas')].map(c => ({c, x:c.getContext('2d')}));
-    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster', mode:'Main mode used'}[kind];
+    this.el.querySelector('em').textContent = {pt:'Public transport', car:'Car', diff:'Which is faster', mode:'Public transport · main vehicle used'}[kind];
     this.clk = this.el.querySelector('b'); this.clk2 = this.el.querySelector('span');
   }
   resize(){const r=this.el.getBoundingClientRect(); this.W=r.width; this.H=r.height; const D=Math.min(2,devicePixelRatio||1);
@@ -433,10 +421,10 @@ function ptTrip(d){
   while (g++ < 40){const L = P.lab[s];
     if (L===-1){const w=chain(P.walkOnly, pt.node[s]); legs.push({k:'walk', t:P.arr[s]-P.rel, m:w.len+pt.snap[s], edges:w.edges, to:s}); break}
     if (L<=-2){const j=-(L+2); legs.push({k:'walk', t:P.arr[s]-P.arr[j], m:Math.hypot(pt.xy[2*s]-pt.xy[2*j], pt.xy[2*s+1]-pt.xy[2*j+1])*1.3, line:[j,s], to:s, transfer:true}); s=j; continue}
-    const tr=pt.trip[L], bc=P.board[tr], sa=pt.a[bc], stops=[sa];
-    for (let x=bc; x<=L; x++) if (pt.trip[x]===tr) stops.push(pt.b[x]);
-    legs.push({k:'ride', mode:pt.mode[tr], route:meta.routes[pt.route[tr]], t:pt.ta[L]-pt.td[bc], from:sa, to:s, stops});
-    const wait = pt.td[bc]-P.arr[sa]; if (wait > 0) legs.push({k:'wait', t:wait, at:sa});
+    const tr=cs.trip[L], bc=P.board[tr], sa=cs.a[bc], stops=[sa];
+    for (let x=bc; x<=L; x++) if (cs.trip[x]===tr) stops.push(cs.b[x]);
+    legs.push({k:'ride', mode:pt.mode[tr], route:meta.routes[pt.route[tr]], t:cs.ta[L]-cs.td[bc], from:sa, to:s, stops});
+    const wait = cs.td[bc]-P.arr[sa]; if (wait > 0) legs.push({k:'wait', t:wait, at:sa});
     s = sa}
   return {total:T[d], legs:legs.reverse()};
 }
@@ -494,7 +482,9 @@ function stats(){
   $('carmodel').innerHTML='<tr><th>Road type</th><th>Free flow</th><th>Now (traffic)</th></tr>'+CLASS.map((n,i)=>`<tr><td>${n}</td><td>${FREE_KMH[i]} km/h</td><td>${Math.round(FREE_KMH[i]/res.mult[i])} km/h</td></tr>`).join('');
   $('note').textContent=`Timetables: ${meta.day}. Walking at 4.8 km/h on OSM streets, 1 min boarding buffer, transfers up to ~350 m between stops. Car: ${$('traffic').selectedOptions[0].text.toLowerCase()} traffic at ${hm(dep)}, ${$('park').value==='1'?'parking search and walk included':'door to door, no parking time'}.`;
 }
-function run(){
+let runId = 0;
+async function run(){
+  const id = ++runId; await loadConns(); if (id !== runId) return;
   const P = routePT(), C = routeCar(), best = new Float64Array(net.N);
   for (let i=0;i<net.N;i++) best[i]=Math.min(P.T[i], C.T[i]);
   const mult = C.mult, carW = e => net.len[e]/(Math.max(FREE_KMH[net.cls[e]],8)/3.6)*mult[net.cls[e]];
@@ -527,8 +517,10 @@ const group = (sel, fn) => document.querySelectorAll(sel).forEach(b => b.addEven
   document.querySelectorAll(sel).forEach(x=>x.setAttribute('aria-pressed', x===b)); fn(b)}));
 group('[data-b]', b => {budget=+b.dataset.b; play()});
 group('[data-c]', b => {clickMode=b.dataset.c});
-group('[data-v]', b => {viewMode=b.dataset.v; showHint(); if(net){layout(); play()}});
-$('dep').addEventListener('change', ev => {dep=+ev.target.value; run()});
+group('[data-v]', b => {viewMode=b.dataset.v; showHint(); carOpts(); if(net){layout(); play()}});
+$('dep').addEventListener('change', ev => {dep=+ev.target.value; syncPresets(); run()});
+function syncPresets(){document.querySelectorAll('[data-t]').forEach(b => b.setAttribute('aria-pressed', +b.dataset.t===dep))}
+document.querySelectorAll('[data-t]').forEach(b => b.addEventListener('click', () => {dep=+b.dataset.t; $('dep').value=dep; syncPresets(); run()}));
 $('traffic').addEventListener('change', run); $('park').addEventListener('change', run);
 $('play').addEventListener('click', play);
 // explanation line: the hovered/focused control, otherwise the current view
@@ -543,12 +535,15 @@ document.querySelectorAll('[data-hint]').forEach(el => {
   el.addEventListener('pointerleave', () => showHint()); el.addEventListener('focusout', () => showHint());
 });
 showHint();
+// traffic and parking only matter when a car map is on screen
+function carOpts(){const on = ['car','both','diff'].includes(viewMode); document.querySelectorAll('[data-car]').forEach(l => l.hidden = !on)}
+carOpts();
 const ro = new ResizeObserver(() => {if(!net||!panes.length)return; panes.forEach(p=>p.resize()); redraw()}); ro.observe($('maps'));
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => net && redraw());
 new MutationObserver(() => net && redraw()).observe(document.documentElement, {attributes:true, attributeFilter:['data-theme']});
 
 load().then(() => {
-  masks(); layout();
+  syncPresets(); masks(); layout();
   const p = panes[0]; view.s = Math.min(p.W/26000, p.H/22000);
   run();
 }).catch(err => {$('status').textContent = 'Could not load the network data: ' + err.message});

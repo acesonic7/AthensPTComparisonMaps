@@ -5,12 +5,12 @@ An interactive map of how far you can get from any point in the Athens basin in 
 - **Public transport**: walking plus bus, trolley, metro (M1–M3), tram and Proastiakos suburban rail, using real timetables
 - **Car**: driving with a modelled typical-weekday traffic profile, one-way streets and an optional allowance for parking
 
-Click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. All routing runs in the browser. The views are:
+Pick any departure time from 05:00 to 04:45 the following night (with Morning peak, Midday, Evening and Night presets), and click anywhere to set the origin. Streets fill in minute by minute, coloured by travel time. All routing runs in the browser. The views are:
 
 - **Transit** and **Car**: travel time to every street. On the car map, faint streets are ones the car drives past and solid streets are ones you have parked and walked to.
 - **Side by side**: both maps, with pan and zoom linked.
 - **Which is faster**: each street coloured by whether transit or the car gets there first.
-- **Main mode**: each street coloured by the vehicle you spend longest on to reach it (bus, trolley, metro, tram, suburban rail, or walking only).
+- **Transit by mode**: public transport only; each street coloured by the vehicle you spend longest on to reach it (bus, trolley, metro, tram, suburban rail, or walking only).
 
 Switch to **Click shows trip** and click a destination to see both journeys step by step, with times, and their routes drawn on the map.
 
@@ -31,7 +31,7 @@ It is a planning sketch, not a journey planner: transit uses scheduled times, an
 python3 -m http.server 8765 -d site
 ```
 
-Then open http://localhost:8765. The page needs no build step: `site/data/` already holds the packed street network and timetables.
+Then open http://localhost:8765. The page needs no build step: `site/data/` already holds the packed street network and timetables. `site/about.html` explains why the map was made and who made it.
 
 ## Rebuild the data
 
@@ -67,8 +67,8 @@ The service days are set at the top of `prep/build_data.py` (`BUS_SERVICE`, `RAI
 ## How it works
 
 - **Streets**: OSM highways from motorway down to pedestrian streets, simplified with osmnx. Each street segment records its road type, whether you can walk on it, and which directions cars may use.
-- **Transit**: connections departing 06:30–10:30 on a Tuesday, routed with the Connection Scan Algorithm. You walk to the first stop and from the last one. Transfers between stops up to about 350 m apart are allowed, with a 1-minute buffer before boarding. Walking speed is 4.8 km/h.
-- **Car**: a model, not live traffic. Free-flow speed by road type, times a congestion factor that depends on the departure time and peaks around 08:00–09:00. Each junction adds a delay, and driving within about 2.5 km of Syntagma is 15% slower. With parking on, a car trip is: reach the car (2 min), drive to any parking spot, search for a space there (8 min near the centre, down to 1 min in the suburbs), then walk to the destination. Walking straight there is allowed when it's quicker. The numbers are listed in the page under *How car travel times are modelled* and are set at the top of the script in `site/index.html`.
+- **Transit**: every connection of a working day (Tuesday) and the night after it, including the night buses, routed with the Connection Scan Algorithm. The timetable is split into one file per departure hour (`site/data/conn/`), so the page only downloads the hours it needs. The next morning's first runs are copied from the same day, so night trips can connect to them. You walk to the first stop and from the last one. Transfers between stops up to about 350 m apart are allowed, with a 1-minute buffer before boarding. Walking speed is 4.8 km/h.
+- **Car**: a model, not live traffic. Free-flow speed by road type, times a congestion factor that follows a working day: morning peak 08:00–09:00, afternoon peak 14:30–15:30, a smaller evening peak, and light traffic late at night. Each junction adds a delay, and driving within about 2.5 km of Syntagma is 15% slower. With parking on, a car trip is: reach the car (2 min), drive to any parking spot, search for a space there (8 min near the centre, down to 1 min in the suburbs), then walk to the destination. Walking straight there is allowed when it's quicker. The numbers are listed in the page under *How car travel times are modelled* and are set at the top of the script in `site/index.html`.
 
 ## Limitations
 

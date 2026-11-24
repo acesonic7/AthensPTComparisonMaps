@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About · Athens transit reach</title>
+<meta name="description" content="Why this map of public transport and car reach in Athens was made, and who made it.">
+<meta name="author" content="Ioannis Tsouros">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{color-scheme:light dark;--bg:light-dark(#fdfdfc,#0f1115);--ink:light-dark(#15161a,#eceef2);--mute:light-dark(#62656d,#9095a0);
+--street:light-dark(#d6d7da,#2a2d34);--line:light-dark(#e4e5e8,#262930);--panel:light-dark(#f3f4f6,#171a20);--c0:#1d2bd8;--c1:#e0218a;--c2:#ff7a1a;--car:#e8590c}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Commissioner,system-ui,sans-serif;overflow-x:clip}
+.top{padding:22px max(3vw,16px) 0}
+.back{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:700;background:var(--panel)}
+.back:hover{border-color:var(--ink)}.back:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
+h1{font-size:clamp(28px,3.6vw,42px);line-height:1.05;margin:22px 0 0;font-weight:800;text-wrap:balance}
+.no{color:var(--mute)}
+.about{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(24px,4vw,64px);padding:36px max(3vw,16px) 28px;border-top:1px solid var(--line);}
+.about h2{font-size:clamp(22px,2.4vw,28px);line-height:1.15;margin:0 0 12px}
+.about p{margin:0 0 12px;max-width:68ch}
+.aims{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:12px;max-width:68ch}
+.aims li{padding-left:14px;border-left:3px solid var(--c0)}
+.aims li:nth-child(2){border-color:var(--c1)}.aims li:nth-child(3){border-color:var(--c2)}.aims li:nth-child(4){border-color:var(--mute)}
+.aims b{display:block}
+.who .name{font-size:20px;font-weight:800;margin:0}
+.who .role{color:var(--mute);margin:2px 0 14px}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px;padding:0;list-style:none}
+.links a{display:inline-flex;align-items:center;min-height:40px;padding:0 14px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-decoration:none;font-weight:600;font-size:15px;background:var(--bg)}
+.links a:hover{border-color:var(--ink)}
+.links a:focus-visible{outline:3px solid var(--c0);outline-offset:2px}
+footer{padding:16px max(3vw,16px) 28px;font-size:13px;color:var(--mute);background:var(--panel)}
+footer a{color:inherit}
+@media(max-width:800px){.about{grid-template-columns:minmax(0,1fr)}}
+.foot{padding:18px max(3vw,16px) 26px;border-top:1px solid var(--line);font-size:14px;color:var(--mute)}
+.foot p{margin:0 0 4px}.foot b{color:var(--ink)}.foot a{color:inherit;text-underline-offset:3px}.foot a:hover{color:var(--ink)}
+.foot .small{font-size:13px}
+</style>
+</head>
+<body>
+<div class="top"><a class="back" href="index.html">← Back to the map</a><h1>How far can you reach in 45 minutes?</h1></div>
+<main class="about" aria-labelledby="why">
+  <div>
+    <h2 id="why">Why this map</h2>
+    <p>Whether a job, a school or a hospital is “close” depends on how you travel. In Athens, two people living a few streets apart can have very different cities within reach, depending on how near they are to a metro station or a frequent bus line. This map makes that visible street by street, from any point you choose.</p>
+    <ul class="aims">
+      <li><b>Show how accessible the city is by public transport</b>How much of Athens buses, trolleys, metro, tram and suburban rail put within 15, 30 or 45 minutes, so the network can be judged by what it lets people reach.</li>
+      <li><b>Find the areas public transport serves poorly</b>Neighbourhoods where transit adds little over walking, or where the car is far quicker. The “Which is faster” and “Transit by mode” views help spot them. Try the Night preset too: after the metro and tram close around 00:30, only a handful of night buses run.</li>
+      <li><b>Put traffic congestion in context</b>Athens' daily congestion is a constant topic. Comparing door-to-door times, including the hunt for a parking space, shows where transit already competes with the car and where it does not yet.</li>
+      <li><b>Keep it open</b>The code and data pipeline are open source, so anyone can check the method, rerun it with new timetables, or adapt it to another city.</li>
+    </ul>
+    <p style="margin-top:16px" class="no">A planning sketch, not a journey planner: transit uses scheduled times, and car times come from a traffic model rather than live data.</p>
+  </div>
+  <div class="who">
+    <h2>Who made it</h2>
+    <p class="name">Dr Ioannis Tsouros</p>
+    <p class="role">Transportation researcher. Lead Scientist and co-founder of MobyX, and external scientist at the Transportation and Decision-Making Laboratory, University of the Aegean.</p>
+    <p>My work is on how people travel and how policy can change it: travel behaviour, new mobility services, mobility data and transport equity.</p>
+    <ul class="links">
+      <li><a href="https://www.jtsouros.site/">Website</a></li>
+      <li><a href="https://github.com/acesonic7">GitHub</a></li>
+      <li><a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a></li>
+      <li><a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a></li>
+    </ul>
+    <p>Source code, data pipeline and issues: <a href="https://github.com/acesonic7/AthensPTComparisonMaps">github.com/acesonic7/AthensPTComparisonMaps</a>. Corrections and ideas are welcome there.</p>
+  </div>
+</main>
+<footer class="foot"><p><b>Ioannis Tsouros</b> · <a href="https://www.jtsouros.site/">Website</a> · <a href="https://github.com/acesonic7">GitHub</a> · <a href="https://www.linkedin.com/in/ioannis-tsouros-ba582243">LinkedIn</a> · <a href="https://scholar.google.com/citations?user=nahTqW0AAAAJ&amp;hl=en">Google Scholar</a> · <a href="https://github.com/acesonic7/AthensPTComparisonMaps">Source code</a></p><p class="small">Map data © <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a> · Timetables: OASA, STASY, Hellenic Train</p></footer>
+</body>
+</html>

@@ -16,7 +16,8 @@ OUT = os.path.join(ROOT, "site", "data"); os.makedirs(OUT, exist_ok=True)
 BUS, RAIL = os.path.join(ROOT, "dl", "bus"), os.path.join(ROOT, "dl", "rail")
 BUS_SERVICE = {"day_2"}            # Tuesday
 RAIL_SERVICE = {"8"}               # Tuesday 2026-07-07
-T_MIN, T_MAX = 6 * 3600 + 30 * 60, 10 * 3600 + 30 * 60   # connections departing in this window
+T_MIN, T_MAX = 4 * 3600, 31 * 3600   # working day + the night after it (GTFS times past 24:00 are after midnight)
+DEP_FIRST, DEP_LAST = 5 * 3600, 28 * 3600 + 45 * 60   # departures offered: 05:00 to 04:45 the next night
 LAT0, LON0 = 37.9755, 23.7348      # Syntagma, projection origin
 M_PER_DEG_LAT = 111_320.0
 M_PER_DEG_LON = 111_320.0 * np.cos(np.radians(LAT0))
@@ -130,6 +131,13 @@ hst = hst[hst.trip_id.isin(set(ht.trip_id))]
 print(f"suburban/regional rail trips through Athens: {len(ht)} ({(ht.route_type=='109').sum()} Proastiakos)")
 trips = pd.concat([bt, rt, ht]); st = pd.concat([bst, rst, hst]); stops = pd.concat([bstops, rstops, hstops])
 print(f"trips: {len(bt)} bus, {len(rt)} rail; stop_times {len(st)}")
+# the next morning's first runs (working days repeat), so night departures can connect to them
+first_dep = st.groupby("trip_id").dep.min()
+nxt_ids = set(first_dep[(first_dep >= 4 * 3600) & (first_dep < 7 * 3600)].index)
+dup = st[st.trip_id.isin(nxt_ids)].copy(); dup["trip_id"] += "+1"; dup["arr"] += 86400; dup["dep"] += 86400
+tdup = trips[trips.trip_id.isin(nxt_ids)].copy(); tdup["trip_id"] += "+1"
+st = pd.concat([st, dup]); trips = pd.concat([trips, tdup])
+print(f"added {len(nxt_ids)} next-morning trips")
 
 # mode: 0 bus, 1 trolley, 2 metro, 3 tram, 4 suburban rail
 def mode(r):
@@ -173,7 +181,12 @@ troute = tinfo.rname.map(rn_idx).values.astype("<u2")
 conn = conn.sort_values(["td", "ta"])
 ca = conn.a.map(sidx).values; cb = conn.b.map(sidx).values
 ctrip = conn.trip.map(tidx).values
-ctd = (conn.td.values - T_MIN).astype("<u2"); cta = (conn.ta.values - T_MIN).astype("<u2")
+# times stored as (t - T_MIN) / 2 in Uint16: 2-second resolution, 36 h range
+ctd = ((conn.td.values - T_MIN) // 2).astype("<u2"); cta = ((conn.ta.values - T_MIN + 1) // 2).astype("<u2")
+assert len(stops) < 65536 and len(trip_ids) < 65536
+is_rail = np.zeros(len(stops), "u1")
+rail_trip = tmode >= 2
+is_rail[ca[rail_trip[ctrip]]] = 1; is_rail[cb[rail_trip[ctrip]]] = 1
 print(f"connections {len(conn)} for {len(trip_ids)} trips")
 
 # stop-to-stop footpaths (straight line x1.3 detour, <= 350 m)
@@ -186,16 +199,25 @@ foff = np.searchsorted(pairs[:, 0], np.arange(len(stops) + 1)).astype("<u4")
 print(f"footpaths {len(pairs)}")
 
 with open(os.path.join(OUT, "pt.bin"), "wb") as f:
-    f.write(struct.pack("<IIII", len(stops), len(conn), len(trip_ids), len(pairs)))
+    f.write(struct.pack("<III", len(stops), len(trip_ids), len(pairs)))
     f.write(np.column_stack([sx, sy]).astype("<f4").tobytes())
     f.write(near.astype("<u4").tobytes()); f.write(dist.astype("<f4").tobytes())
-    f.write(ca.astype("<u4").tobytes()); f.write(cb.astype("<u4").tobytes())
-    f.write(ctrip.astype("<u4").tobytes())
-    f.write(ctd.tobytes()); f.write(cta.tobytes())
-    f.write(tmode.tobytes())
-    f.write(b"\0" * ((-len(tmode)) % 4))
     f.write(foff.tobytes()); f.write(pairs[:, 1].astype("<u4").tobytes()); f.write(fd.astype("<f4").tobytes())
-    f.write(troute.tobytes())
+    f.write(troute.tobytes()); f.write(b"\0" * ((-2 * len(troute)) % 4))
+    f.write(tmode.tobytes()); f.write(b"\0" * ((-len(tmode)) % 4))
+    f.write(is_rail.tobytes())
+
+# connections in one file per departure hour, loaded on demand by the page
+import base64, glob
+CDIR = os.path.join(OUT, "conn"); os.makedirs(CDIR, exist_ok=True)
+for old_f in glob.glob(os.path.join(CDIR, "*.json")): os.remove(old_f)
+hours = conn.td.values // 3600
+for h in range(T_MIN // 3600, T_MAX // 3600 + 1):
+    m = hours == h
+    if not m.any(): continue
+    buf = struct.pack("<I", int(m.sum())) + b"".join(x[m].astype("<u2").tobytes() for x in (ca, cb, ctrip, ctd, cta))
+    json.dump(base64.b64encode(buf).decode(), open(os.path.join(CDIR, f"h{h:02d}.b64.json"), "w"))
+print("connection chunks:", sorted(os.path.basename(x) for x in glob.glob(os.path.join(CDIR, "*.json"))))
 
 # rail lines for drawing: stop sequence of the longest trip per route
 lines = []
@@ -239,7 +261,7 @@ for name, la, lo in marks:
     x, y = proj(lo, la); mk.append({"name": name, "x": round(float(x), 1), "y": round(float(y), 1)})
 
 meta = {"lat0": LAT0, "lon0": LON0, "mPerDegLat": M_PER_DEG_LAT, "mPerDegLon": float(M_PER_DEG_LON),
-        "tMin": T_MIN, "tMax": T_MAX, "day": "a Tuesday: OASA buses/trolleys and STASY metro/tram (summer 2026 timetable), Hellenic Train Proastiakos (1 Dec 2026)",
+        "tMin": T_MIN, "tMax": T_MAX, "depFirst": DEP_FIRST, "depLast": DEP_LAST, "day": "a working day (Tuesday): OASA buses/trolleys and STASY metro/tram (summer 2026 timetable), Hellenic Train Proastiakos (1 Dec 2026)",
         "lines": lines, "marks": mk,
         "routes": route_names, "stopNames": stops.stop_name.fillna("").str.strip().tolist()}
 json.dump(meta, open(os.path.join(OUT, "meta.json"), "w"))
