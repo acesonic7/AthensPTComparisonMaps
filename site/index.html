@@ -146,8 +146,9 @@ details td,details th{font-size:13px;padding:3px 6px}
 <section id="trip" hidden><div id="tripPT"></div><div id="tripCar"></div></section>
 <section class="below">
   <div>
-    <h2>Streets within reach</h2>
+    <h2>Area within reach</h2>
     <table id="bands"></table>
+    <p class="note" style="margin-top:8px">Land area with at least one reachable street, counted in 100 m × 100 m squares. For scale, the Municipality of Athens covers about 39 km².</p>
     <p class="note" id="note"></p>
     <details><summary>How car travel times are modelled</summary>
       <p>There is no live traffic feed here, so driving uses a typical-weekday model: free-flow speed by road type, multiplied by a congestion factor that follows a working day (morning peak 08:00–09:00, afternoon peak 14:30–15:30, a smaller evening peak, light traffic late at night) and is stronger on arterials than on motorways or side streets. One-way streets are respected and every junction adds a delay. Inside ~2.5 km of Syntagma travel is a further 15% slower.</p>
@@ -466,15 +467,25 @@ function showTrip(){
 }
 
 // ---------- stats ----------
-function km(T, lim, allow){let s=0;for (let e=0;e<net.E;e++){if(!(net.flag[e]&allow))continue;const a=T[net.u[e]],b=T[net.v[e]],w=net.len[e]/WALK||1;
-  s+=Math.min(1,Math.max(0,(lim-a)/w)+Math.max(0,(lim-b)/w))*net.len[e]}return s/1000}
+// area within reach: 100 m squares containing a reachable piece of street (sampled every ~25 m along each street)
+const CELL = 100; let grid = null;
+function area(T, lim, allow, W){
+  if (!grid){let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity; for (let i=0;i<net.N;i++){const x=net.xy[2*i],y=net.xy[2*i+1]; x0=Math.min(x0,x);y0=Math.min(y0,y);x1=Math.max(x1,x);y1=Math.max(y1,y)}
+    const nx=Math.ceil((x1-x0)/CELL)+1, ny=Math.ceil((y1-y0)/CELL)+1; grid={x0,y0,nx,stamp:new Uint32Array(nx*ny),k:0}}
+  const g=grid, k=++g.k, xy=net.xy; let n=0;
+  const mark=(x,y)=>{const c=Math.floor((x-g.x0)/CELL)+Math.floor((y-g.y0)/CELL)*g.nx; if (g.stamp[c]!==k){g.stamp[c]=k; n++}};
+  for (let e=0;e<net.E;e++){if(!(net.flag[e]&allow))continue; const u=net.u[e], v=net.v[e], a=T[u], b=T[v]; if (a>lim && b>lim) continue;
+    const w=(W?W[e]:net.len[e]/WALK)||1, fu=Math.min(1,Math.max(0,(lim-a)/w)), fv=Math.min(1,Math.max(0,(lim-b)/w));
+    const ux=xy[2*u],uy=xy[2*u+1],dx=xy[2*v]-ux,dy=xy[2*v+1]-uy, steps=Math.max(1,Math.ceil(net.len[e]/25));
+    for (let i=0;i<=steps;i++){const t=i/steps; if (t<=fu || 1-t<=fv) mark(ux+dx*t, uy+dy*t)}}
+  return n*CELL*CELL/1e6}
 // best time to a place: any reached street node within 250 m, plus the walk from it
 function near(T, m, mask){let best=Infinity; const xy=net.xy;
   for (let i=0;i<net.N;i++){if(!mask[i]||T[i]===Infinity)continue; const d=Math.hypot(xy[2*i]-m.x, xy[2*i+1]-m.y); if (d<250) best=Math.min(best, T[i]+d/WALK)}
   return best}
 function stats(){
-  const rows=[15,30,45].map(b=>({b, p:km(res.pt.T,b*60,1), c:km(res.car.T,b*60,res.C.park?1:6), w:km(res.walk,b*60,1)}));
-  const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>Math.round(v).toLocaleString('en')+' km';
+  const rows=[15,30,45].map(b=>({b, p:area(res.pt.T,b*60,1), c:res.C.park?area(res.car.T,b*60,1):area(res.car.T,b*60,6,res.car.w), w:area(res.walk,b*60,1)}));
+  const mx=Math.max(...rows.map(r=>Math.max(r.p,r.c)),1), f=v=>(v<10?v.toFixed(1):Math.round(v).toLocaleString('en'))+' km²';
   $('bands').innerHTML=`<tr><th>Within</th><th><span class="dot" style="background:var(--c0)"></span>Transit</th><th><span class="dot" style="background:var(--car)"></span>Car</th><th>Walk only</th></tr>`+
     rows.map(r=>`<tr><td>${r.b} min</td><td class="${r.p>=r.c?'win':''}">${f(r.p)}<div class="bar" style="width:${r.p/mx*100}%;background:var(--c0)"></div></td><td class="${r.c>r.p?'win':''}">${f(r.c)}<div class="bar" style="width:${r.c/mx*100}%;background:var(--car)"></div></td><td class="no">${f(r.w)}</td></tr>`).join('');
   const tm = t => t<=LIM ? Math.round(t/60)+' min' : 'over 45';
